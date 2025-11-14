@@ -18,6 +18,18 @@ This project implements an n8n workflow that receives updates from three Telegra
 - **Automatic Reply**: Each agent replies to messages in its assigned chats
 - **LLM Integration**: Uses OpenAI API (or compatible endpoints) for response generation
 
+## Documentation
+
+- [Quick Start Guide](docs/QUICKSTART.md)
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [AI-Assisted Development Log](docs/AI_ASSISTED_DEVELOPMENT.md)
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+You may redistribute and/or modify it under the terms of the [LICENSE](LICENSE) file.
+
 ## Architecture
 
 ```

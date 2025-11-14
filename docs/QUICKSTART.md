@@ -57,6 +57,19 @@ You can also choose an alternative LLM provider (for example `gemini` or `deepse
 
 Make sure to update the workflow or n8n credentials to use the corresponding provider and API key if you change `LLM_PROVIDER`.
 
+Automatic workflow import
+-------------------------
+
+This setup will automatically import any workflow JSON files placed under the `workflows/` directory into n8n on container start. The compose file mounts `./workflows` into the container and runs a small import script before launching n8n.
+
+To add workflows automatically:
+
+1. Place exported workflow JSON files into `workflows/` (for example `workflows/telegram-multi-agent-bot.json`).
+2. Start or restart the stack with `docker-compose up -d`.
+3. The import script will attempt to import all `*.json` files in the directory and then start n8n.
+
+If an import fails for a file it will be logged and the container will still start; fix the offending file and restart if needed.
+
 ### Step 2: Start Services
 
 ```bash
