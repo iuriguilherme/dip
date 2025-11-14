@@ -28,5 +28,6 @@ temp/
 *.tmp
 
 # Backups
-*.sql
+backup*.sql
+dump*.sql
 *.bak
