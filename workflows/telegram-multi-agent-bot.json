@@ -165,9 +165,22 @@
     },
     {
       "parameters": {
+        "jsCode": "// Attach LLM provider and fallback info from environment to the item\nconst item = $input.first();\nitem.json.llm_provider = $env.LLM_PROVIDER || 'openai';\nitem.json.llm_model = $env.LLM_MODEL || 'gpt-3.5-turbo';\nitem.json.fallback_llm_provider = $env.FALLBACK_LLM_PROVIDER || '';\nitem.json.fallback_llm_model = $env.FALLBACK_LLM_MODEL || '';\nreturn [item];"
+      },
+      "id": "set-llm-provider-info",
+      "name": "Set LLM Provider Info",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        400
+      ]
+    },
+    {
+      "parameters": {
         "resource": "chat",
         "operation": "create",
-        "model": "gpt-3.5-turbo",
+        "model": "={{$env.LLM_MODEL}}",
         "messages": {
           "values": [
             {
@@ -216,7 +229,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO agent_responses (\n  update_id,\n  agent_name,\n  agent_personality,\n  response_text,\n  llm_model,\n  prompt_tokens,\n  completion_tokens\n) VALUES (\n  (SELECT id FROM telegram_updates WHERE update_id = {{$json.update_id}} AND bot_token = '{{$json.bot_token}}' LIMIT 1),\n  '{{$json.agent_name}}',\n  '{{$json.agent_personality}}',\n  '{{$json.llm_response}}',\n  'gpt-3.5-turbo',\n  {{$json.prompt_tokens}},\n  {{$json.completion_tokens}}\n)\nRETURNING id;",
+        "query": "INSERT INTO agent_responses (\n  update_id,\n  agent_name,\n  agent_personality,\n  response_text,\n  llm_model,\n  prompt_tokens,\n  completion_tokens\n) VALUES (\n  (SELECT id FROM telegram_updates WHERE update_id = {{$json.update_id}} AND bot_token = '{{$json.bot_token}}' LIMIT 1),\n  '{{$json.agent_name}}',\n  '{{$json.agent_personality}}',\n  '{{$json.llm_response}}',\n  '{{$env.LLM_MODEL}}',\n  {{$json.prompt_tokens}},\n  {{$json.completion_tokens}}\n)\nRETURNING id;",
         "additionalFields": {}
       },
       "id": "store-agent-response",
@@ -392,6 +405,17 @@
       ]
     },
     "Build Conversation Context": {
+      "main": [
+        [
+          {
+            "node": "Set LLM Provider Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set LLM Provider Info": {
       "main": [
         [
           {

@@ -26,17 +26,36 @@ cd n8n9n10n
 # Copy environment template
 cp .env.example .env
 
-# Edit .env with your credentials
+# Edit `./.env` with your credentials and secrets
 nano .env  # or use your preferred editor
+
+The `.env.example` includes all variables used by the compose setup (Postgres, n8n, Telegram tokens and OpenAI). At minimum update the Telegram tokens and OpenAI key, and consider changing the basic auth and DB passwords for production:
+
+```env
+# Telegram bot tokens (get these from @BotFather)
+TELEGRAM_BOT_TOKEN_1=your_first_bot_token_here
+TELEGRAM_BOT_TOKEN_2=your_second_bot_token_here
+TELEGRAM_BOT_TOKEN_3=your_third_bot_token_here
+
+# OpenAI API key
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Optional: change n8n basic auth defaults
+N8N_BASIC_AUTH_USER=admin
+N8N_BASIC_AUTH_PASSWORD=admin
+
+# Optional: change Postgres password (local default is "n8n")
+POSTGRES_PASSWORD=n8n
 ```
 
-Add your tokens to `.env`:
-```env
-TELEGRAM_BOT_TOKEN_1=123456789:ABCdefGHIjklMNOpqrsTUVwxyz
-TELEGRAM_BOT_TOKEN_2=987654321:XYZwvuTSRqponMLKjihGFEdcba
-TELEGRAM_BOT_TOKEN_3=555555555:AABBccDDeeFFggHHiiJJkkLLmmNN
-OPENAI_API_KEY=sk-proj-...your-key-here...
-```
+You can also choose an alternative LLM provider (for example `gemini` or `deepseek`) by setting `LLM_PROVIDER` and the provider-specific API keys in your `.env`. The `.env.example` contains placeholders for:
+
+- `LLM_PROVIDER` (one of: `openai`, `gemini`, `deepseek`)
+- `LLM_MODEL` (model name for the provider)
+- `GEMINI_API_KEY`, `GEMINI_API_BASE`
+- `DEEPSEEK_API_KEY`, `DEEPSEEK_API_BASE`
+
+Make sure to update the workflow or n8n credentials to use the corresponding provider and API key if you change `LLM_PROVIDER`.
 
 ### Step 2: Start Services
 
