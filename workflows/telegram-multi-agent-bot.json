@@ -1,0 +1,469 @@
+{
+  "name": "Telegram Multi-Agent Bot with Memory",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_1}}",
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": false
+        }
+      },
+      "id": "telegram-trigger-bot1",
+      "name": "Telegram Bot 1 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_2}}",
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": false
+        }
+      },
+      "id": "telegram-trigger-bot2",
+      "name": "Telegram Bot 2 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        500
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_3}}",
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": false
+        }
+      },
+      "id": "telegram-trigger-bot3",
+      "name": "Telegram Bot 3 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        700
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "id": "merge-telegram-updates",
+      "name": "Merge Telegram Updates",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        460,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.message?.text}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "filter-text-messages",
+      "name": "Filter Text Messages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        680,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO telegram_updates (\n  bot_token,\n  update_id,\n  message_id,\n  chat_id,\n  user_id,\n  username,\n  first_name,\n  last_name,\n  message_text,\n  message_type,\n  message_date,\n  raw_data\n) VALUES (\n  '{{$json.bot_token}}',\n  {{$json.update_id}},\n  {{$json.message.message_id}},\n  {{$json.message.chat.id}},\n  {{$json.message.from.id}},\n  '{{$json.message.from.username}}',\n  '{{$json.message.from.first_name}}',\n  '{{$json.message.from.last_name}}',\n  '{{$json.message.text}}',\n  'text',\n  to_timestamp({{$json.message.date}}),\n  '{{$json}}'::jsonb\n)\nON CONFLICT (bot_token, update_id) DO NOTHING\nRETURNING id;",
+        "additionalFields": {}
+      },
+      "id": "store-telegram-update",
+      "name": "Store Telegram Update",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        900,
+        400
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  message_role,\n  message_content,\n  message_timestamp\nFROM agent_memory\nWHERE agent_name = '{{$json.agent_name}}'\n  AND chat_id = {{$json.message.chat.id}}\n  AND (expires_at IS NULL OR expires_at > NOW())\nORDER BY message_timestamp DESC\nLIMIT 10;",
+        "additionalFields": {}
+      },
+      "id": "retrieve-agent-memory",
+      "name": "Retrieve Agent Memory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        400
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assign messages to three agents with distinct personalities\nconst agents = [\n  {\n    name: 'Agent Alpha',\n    personality: 'professional',\n    systemPrompt: 'You are Agent Alpha, a professional and analytical AI assistant. You provide clear, concise, and well-structured responses. You focus on facts and logical reasoning.'\n  },\n  {\n    name: 'Agent Beta',\n    personality: 'friendly',\n    systemPrompt: 'You are Agent Beta, a friendly and empathetic AI assistant. You are warm, conversational, and use casual language. You care about the user\\'s feelings and provide supportive responses.'\n  },\n  {\n    name: 'Agent Gamma',\n    personality: 'creative',\n    systemPrompt: 'You are Agent Gamma, a creative and imaginative AI assistant. You think outside the box, use metaphors and analogies, and provide unique perspectives. You enjoy wordplay and creative solutions.'\n  }\n];\n\n// Simple hash function to consistently assign chat to same agent\nfunction hashChatId(chatId) {\n  const str = String(chatId);\n  let hash = 0;\n  for (let i = 0; i < str.length; i++) {\n    hash = ((hash << 5) - hash) + str.charCodeAt(i);\n    hash = hash & hash;\n  }\n  return Math.abs(hash);\n}\n\nconst items = [];\nfor (const item of $input.all()) {\n  const chatId = item.json.message.chat.id;\n  const agentIndex = hashChatId(chatId) % 3;\n  const agent = agents[agentIndex];\n  \n  items.push({\n    json: {\n      ...item.json,\n      agent_name: agent.name,\n      agent_personality: agent.personality,\n      agent_system_prompt: agent.systemPrompt\n    }\n  });\n}\n\nreturn items;"
+      },
+      "id": "assign-to-agents",
+      "name": "Assign to Agents",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build conversation context from agent memory\nconst item = $input.first();\nconst memories = $input.all().slice(1); // First item is the main message, rest are memories\n\nconst conversationHistory = [];\n\n// Add recent memories in chronological order\nfor (const memory of memories.reverse()) {\n  if (memory.json.message_role && memory.json.message_content) {\n    conversationHistory.push({\n      role: memory.json.message_role,\n      content: memory.json.message_content\n    });\n  }\n}\n\n// Add current user message\nconversationHistory.push({\n  role: 'user',\n  content: item.json.message.text\n});\n\nreturn [{\n  json: {\n    ...item.json,\n    conversation_history: conversationHistory\n  }\n}];"
+      },
+      "id": "build-conversation-context",
+      "name": "Build Conversation Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "model": "gpt-3.5-turbo",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "={{$json.agent_system_prompt}}"
+            },
+            {
+              "role": "user",
+              "content": "={{$json.conversation_history}}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 500
+        }
+      },
+      "id": "llm-generate-response",
+      "name": "LLM Generate Response",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        1780,
+        400
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "2",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the LLM response and prepare for storage and sending\nconst item = $input.first();\nconst response = item.json.choices[0].message.content;\nconst usage = item.json.usage;\n\nreturn [{\n  json: {\n    ...item.json,\n    llm_response: response,\n    prompt_tokens: usage.prompt_tokens,\n    completion_tokens: usage.completion_tokens\n  }\n}];"
+      },
+      "id": "extract-llm-response",
+      "name": "Extract LLM Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO agent_responses (\n  update_id,\n  agent_name,\n  agent_personality,\n  response_text,\n  llm_model,\n  prompt_tokens,\n  completion_tokens\n) VALUES (\n  (SELECT id FROM telegram_updates WHERE update_id = {{$json.update_id}} AND bot_token = '{{$json.bot_token}}' LIMIT 1),\n  '{{$json.agent_name}}',\n  '{{$json.agent_personality}}',\n  '{{$json.llm_response}}',\n  'gpt-3.5-turbo',\n  {{$json.prompt_tokens}},\n  {{$json.completion_tokens}}\n)\nRETURNING id;",
+        "additionalFields": {}
+      },
+      "id": "store-agent-response",
+      "name": "Store Agent Response",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        2220,
+        400
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{$json.message.chat.id}}",
+        "text": "={{$json.llm_response}}",
+        "additionalFields": {
+          "reply_to_message_id": "={{$json.message.message_id}}"
+        }
+      },
+      "id": "send-telegram-reply",
+      "name": "Send Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        2440,
+        400
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "3",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Store user message in memory\nINSERT INTO agent_memory (\n  agent_name,\n  chat_id,\n  message_role,\n  message_content,\n  message_timestamp,\n  expires_at\n) VALUES (\n  '{{$json.agent_name}}',\n  {{$json.message.chat.id}},\n  'user',\n  '{{$json.message.text}}',\n  to_timestamp({{$json.message.date}}),\n  NOW() + INTERVAL '1 hour'\n);\n\n-- Store agent response in memory\nINSERT INTO agent_memory (\n  agent_name,\n  chat_id,\n  message_role,\n  message_content,\n  message_timestamp,\n  expires_at\n) VALUES (\n  '{{$json.agent_name}}',\n  {{$json.message.chat.id}},\n  'assistant',\n  '{{$json.llm_response}}',\n  NOW(),\n  NOW() + INTERVAL '1 hour'\n);\n\n-- Clean up expired memories\nDELETE FROM agent_memory\nWHERE expires_at < NOW();",
+        "additionalFields": {}
+      },
+      "id": "update-agent-memory",
+      "name": "Update Agent Memory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        2660,
+        400
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE agent_responses\nSET sent_successfully = true,\n    telegram_message_id = {{$json.message_id}}\nWHERE id = (SELECT id FROM agent_responses WHERE agent_name = '{{$json.agent_name}}' ORDER BY created_at DESC LIMIT 1);",
+        "additionalFields": {}
+      },
+      "id": "mark-response-sent",
+      "name": "Mark Response as Sent",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        400
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Bot 1 Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Telegram Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Bot 2 Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Telegram Updates",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Telegram Bot 3 Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Telegram Updates",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Telegram Updates": {
+      "main": [
+        [
+          {
+            "node": "Filter Text Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Text Messages": {
+      "main": [
+        [
+          {
+            "node": "Store Telegram Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Telegram Update": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Agent Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Agent Memory": {
+      "main": [
+        [
+          {
+            "node": "Assign to Agents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign to Agents": {
+      "main": [
+        [
+          {
+            "node": "Build Conversation Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Conversation Context": {
+      "main": [
+        [
+          {
+            "node": "LLM Generate Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Generate Response": {
+      "main": [
+        [
+          {
+            "node": "Extract LLM Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract LLM Response": {
+      "main": [
+        [
+          {
+            "node": "Store Agent Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Agent Response": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Reply": {
+      "main": [
+        [
+          {
+            "node": "Update Agent Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Agent Memory": {
+      "main": [
+        [
+          {
+            "node": "Mark Response as Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "1",
+  "meta": {
+    "instanceId": "n8n-local"
+  },
+  "tags": []
+}
