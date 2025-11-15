@@ -1,0 +1,495 @@
+{
+  "name": "Telegram Multi-Agent Poller",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "unit": "seconds",
+              "value": 5
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "merge-triggers",
+      "name": "Merge Triggers",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const env = $env || {};\nconst bots = [\n  { label: 'bot_1', token: env.TELEGRAM_BOT_TOKEN_1 },\n  { label: 'bot_2', token: env.TELEGRAM_BOT_TOKEN_2 },\n  { label: 'bot_3', token: env.TELEGRAM_BOT_TOKEN_3 }\n].filter(bot => typeof bot.token === 'string' && bot.token.trim().length > 0);\n\nreturn bots.map((bot) => ({\n  json: {\n    bot_label: bot.label,\n    bot_token: bot.token\n  }\n}));"
+      },
+      "id": "prepare-bots",
+      "name": "Prepare Bots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COALESCE(MAX(update_id), 0) AS last_update\nFROM telegram_updates\nWHERE bot_token = '{{$json.bot_token}}';"
+      },
+      "id": "load-last-update",
+      "name": "Load Last Update",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        280,
+        90
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credentials",
+          "name": "PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const seeds = $items('prepare-bots', 0);\nreturn items.map((item, index) => {\n  const base = seeds[index]?.json || {};\n  const lastUpdate = Number(item.json.last_update || 0);\n  return {\n    json: {\n      ...base,\n      last_update: lastUpdate,\n      offset: lastUpdate > 0 ? lastUpdate + 1 : 0\n    }\n  };\n});"
+      },
+      "id": "apply-offset",
+      "name": "Apply Offset",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "requestMethod": "GET",
+        "url": "={{'https://api.telegram.org/bot' + $json.bot_token + '/getUpdates'}}",
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "offset",
+              "value": "={{$json.offset}}"
+            },
+            {
+              "name": "timeout",
+              "value": "0"
+            },
+            {
+              "name": "limit",
+              "value": "50"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "responseFormat": "json"
+          }
+        }
+      },
+      "id": "fetch-updates",
+      "name": "Fetch Updates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        780,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const metaItems = $items('apply-offset', 0);\nconst output = [];\n\nfor (let index = 0; index < items.length; index++) {\n  const response = items[index].json || {};\n  const meta = metaItems[index] ? metaItems[index].json : {};\n  if (!meta.bot_token) {\n     continue;\n  }\n\n  let maxUpdate = Number(meta.last_update || 0);\n  const updates = Array.isArray(response.result) ? response.result : [];\n\n  for (const update of updates) {\n    if (typeof update.update_id !== 'number') {\n      continue;\n    }\n    const message = update.message || update.edited_message;\n    if (!message || typeof message.text !== 'string' || message.text.trim().length === 0) {\n      continue;\n    }\n    const messageDateSeconds = typeof message.date === 'number' ? message.date : Math.floor(Date.now() / 1000);\n\n    output.push({\n      json: {\n        bot_token: meta.bot_token,\n        bot_label: meta.bot_label,\n        update_id: update.update_id,\n        message_id: message.message_id,\n        chat_id: message.chat.id,\n        chat_type: message.chat.type || 'private',\n        user_id: message.from.id,\n        username: message.from.username || null,\n        first_name: message.from.first_name || null,\n        last_name: message.from.last_name || null,\n        message_text: message.text,\n        message_date: new Date(messageDateSeconds * 1000).toISOString(),\n        raw_update: update\n      }\n    });\n\n    if (update.update_id > maxUpdate) {\n      maxUpdate = update.update_id;\n    }\n  }\n\n  // Update the latest processed ID for this bot so that other nodes can use it if needed\n  metaItems[index].json.last_update = maxUpdate;\n}\n\nreturn output;"
+      },
+      "id": "parse-updates",
+      "name": "Parse Updates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const agents = [\n  {\n    name: 'Agent Alpha',\n    personality: 'professional',\n    systemPrompt: 'You are Agent Alpha, a professional and analytical AI assistant. You provide clear, concise, and well-structured responses. You focus on facts and logical reasoning.'\n  },\n  {\n    name: 'Agent Beta',\n    personality: 'friendly',\n    systemPrompt: 'You are Agent Beta, a friendly and empathetic AI assistant. You are warm, conversational, and use casual language. You care about the user's feelings and provide supportive responses.'\n  },\n  {\n    name: 'Agent Gamma',\n    personality: 'creative',\n    systemPrompt: 'You are Agent Gamma, a creative and imaginative AI assistant. You think outside the box, use metaphors and analogies, and provide unique perspectives. You enjoy wordplay and creative solutions.'\n  }\n];\n\nfunction hashChatId(chatId) {\n  const str = String(chatId);\n  let hash = 0;\n  for (let i = 0; i < str.length; i++) {\n    hash = ((hash << 5) - hash) + str.charCodeAt(i);\n    hash |= 0;\n  }\n  return Math.abs(hash);\n}\n\nreturn items.map(item => {\n  const data = item.json;\n  const agent = agents[hashChatId(data.chat_id) % agents.length];\n  return {\n    json: {\n      ...data,\n      agent_name: agent.name,\n      agent_personality: agent.personality,\n      agent_system_prompt: agent.systemPrompt\n    }\n  };\n});"
+      },
+      "id": "assign-agent",
+      "name": "Assign Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO telegram_updates (\n  bot_token,\n  update_id,\n  message_id,\n  chat_id,\n  user_id,\n  username,\n  first_name,\n  last_name,\n  message_text,\n  message_type,\n  message_date,\n  raw_data\n) VALUES (\n  '{{$json.bot_token}}',\n  {{$json.update_id}},\n  {{$json.message_id}},\n  {{$json.chat_id}},\n  {{$json.user_id}},\n  '{{$json.username}}',\n  '{{$json.first_name}}',\n  '{{$json.last_name}}',\n  '{{$json.message_text.replace(/'/g, \"''\")}}',\n  'text',\n  '{{$json.message_date}}',\n  '{{JSON.stringify($json.raw_update).replace(/'/g, \"''\")}}'\n)\nON CONFLICT (bot_token, update_id) DO UPDATE\nSET message_text = EXCLUDED.message_text;"
+      },
+      "id": "store-update",
+      "name": "Store Update",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        620,
+        -100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credentials",
+          "name": "PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COALESCE(\n  JSON_AGG(\n    JSON_BUILD_OBJECT(\n      'message_role', message_role,\n      'message_content', message_content,\n      'message_timestamp', message_timestamp\n    )\n    ORDER BY message_timestamp ASC\n  ), '[]'::json) AS memories\nFROM agent_memory\nWHERE agent_name = '{{$json.agent_name}}'\n  AND chat_id = {{$json.chat_id}}\n  AND expires_at > NOW()\n  AND message_timestamp > NOW() - INTERVAL '1 hour';"
+      },
+      "id": "get-memory",
+      "name": "Get Agent Memory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        840,
+        90
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credentials",
+          "name": "PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const assignItems = $items('assign-agent', 0);\nconst output = [];\n\nfor (let index = 0; index < assignItems.length; index++) {\n  const base = assignItems[index].json;\n  const memoryRow = items[index] ? items[index].json : { memories: [] };\n  const memories = Array.isArray(memoryRow.memories) ? memoryRow.memories : [];\n\n  const conversation = memories.map(entry => ({\n    role: entry.message_role === 'assistant' ? 'assistant' : 'user',\n    content: entry.message_content\n  }));\n\n  conversation.push({ role: 'user', content: base.message_text });\n\n  const systemPrompt = base.agent_system_prompt + '\\n\\nYou are replying to ' + (base.first_name ?? 'the user') + '. Maintain the agent personality at all times.';\n\n  output.push({\n    json: {\n      ...base,\n      conversation_memory: memories,\n      llm_messages: [\n        { role: 'system', content: systemPrompt },\n        ...conversation\n      ]\n    }\n  });\n}\n\nreturn output;"
+      },
+      "id": "build-llm",
+      "name": "Build LLM Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ model: $env.LLM_MODEL || 'gpt-3.5-turbo', messages: $json.llm_messages, temperature: 0.7, max_tokens: 400 })}}",
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.OPENAI_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "responseFormat": "json"
+          }
+        }
+      },
+      "id": "call-openai",
+      "name": "Call OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1280,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const baseItems = $items('build-llm', 0);\nconst output = [];\n\nfor (let index = 0; index < baseItems.length; index++) {\n  const base = baseItems[index].json;\n  const response = items[index] ? items[index].json : {};\n\n  let content = 'Sorry, I could not generate a response right now.';\n  let promptTokens = 0;\n  let completionTokens = 0;\n\n  if (Array.isArray(response.choices) && response.choices[0] && response.choices[0].message && typeof response.choices[0].message.content === 'string') {\n    content = response.choices[0].message.content;\n  }\n\n  if (response.usage) {\n    promptTokens = response.usage.prompt_tokens || 0;\n    completionTokens = response.usage.completion_tokens || 0;\n  }\n\n  output.push({\n    json: {\n      ...base,\n      llm_response: content.trim(),\n      prompt_tokens: promptTokens,\n      completion_tokens: completionTokens,\n      total_tokens: promptTokens + completionTokens\n    }\n  });\n}\n\nreturn output;"
+      },
+      "id": "extract-response",
+      "name": "Extract Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO agent_responses (\n  update_id,\n  agent_name,\n  agent_personality,\n  response_text,\n  llm_model,\n  prompt_tokens,\n  completion_tokens\n) VALUES (\n  (SELECT id FROM telegram_updates WHERE bot_token = '{{$json.bot_token}}' AND update_id = {{$json.update_id}} LIMIT 1),\n  '{{$json.agent_name}}',\n  '{{$json.agent_personality}}',\n  '{{$json.llm_response.replace(/'/g, \"''\")}}',\n  '{{$env.LLM_MODEL || \"gpt-3.5-turbo\"}}',\n  {{$json.prompt_tokens}},\n  {{$json.completion_tokens}}\n);"
+      },
+      "id": "store-response",
+      "name": "Store Agent Response",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        -100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credentials",
+          "name": "PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "={{'https://api.telegram.org/bot' + $json.bot_token + '/sendMessage'}}",
+        "jsonParameters": true,
+        "bodyParametersJson": "={{JSON.stringify({ chat_id: $json.chat_id, text: $json.llm_response, reply_to_message_id: $json.message_id })}}",
+        "options": {
+          "response": {
+            "responseFormat": "json"
+          }
+        }
+      },
+      "id": "send-reply",
+      "name": "Send Telegram Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1720,
+        90
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO agent_memory (\n  agent_name,\n  chat_id,\n  message_role,\n  message_content,\n  message_timestamp,\n  expires_at\n) VALUES\n(\n  '{{$json.agent_name}}',\n  {{$json.chat_id}},\n  'user',\n  '{{$json.message_text.replace(/'/g, \"''\")}}',\n  NOW(),\n  NOW() + INTERVAL '1 hour'\n),\n(\n  '{{$json.agent_name}}',\n  {{$json.chat_id}},\n  'assistant',\n  '{{$json.llm_response.replace(/'/g, \"''\")}}',\n  NOW(),\n  NOW() + INTERVAL '1 hour'\n);"
+      },
+      "id": "update-memory",
+      "name": "Update Agent Memory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [
+        1940,
+        90
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credentials",
+          "name": "PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Triggers": {
+      "main": [
+        [
+          {
+            "node": "Prepare Bots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Bots": {
+      "main": [
+        [
+          {
+            "node": "Load Last Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Last Update": {
+      "main": [
+        [
+          {
+            "node": "Apply Offset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Offset": {
+      "main": [
+        [
+          {
+            "node": "Fetch Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Updates": {
+      "main": [
+        [
+          {
+            "node": "Parse Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Updates": {
+      "main": [
+        [
+          {
+            "node": "Assign Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign Agent": {
+      "main": [
+        [
+          {
+            "node": "Get Agent Memory",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Store Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Agent Memory": {
+      "main": [
+        [
+          {
+            "node": "Build LLM Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build LLM Payload": {
+      "main": [
+        [
+          {
+            "node": "Call OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Extract Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Response": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Store Agent Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Agent Memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "={{$env.GENERIC_TIMEZONE || $env.TZ || 'UTC'}}"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "telegram"
+    },
+    {
+      "name": "multi-agent"
+    }
+  ],
+  "triggerCount": 2,
+  "versionId": "1"
+}

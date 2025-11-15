@@ -1,0 +1,68 @@
+{
+  "name": "02 - Process Message",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "process-message",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-process",
+      "name": "Process Message Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, bot_token, raw_data FROM telegram_updates WHERE id = {{$json.updateId}} LIMIT 1;",
+        "additionalFields": {}
+      },
+      "id": "select-update",
+      "name": "Select Stored Update",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [520, 300],
+      "credentials": {
+        "postgres": { "id": "1", "name": "Postgres account" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assign to an agent based on chat id hash\nconst item = $input.first();\nconst row = item.json[0];\nconst data = JSON.parse(row.raw_data);\nconst chatId = data.message.chat.id;\nfunction hash(s){ let h=0; for(let i=0;i<String(s).length;i++){h=((h<<5)-h)+String(s).charCodeAt(i); h |=0;} return Math.abs(h);}\nconst idx = hash(chatId) % 3;\nconst agents = [\n  { name: 'Agent Alpha', personality: 'professional', systemPrompt: 'You are Agent Alpha, professional.' },\n  { name: 'Agent Beta', personality: 'friendly', systemPrompt: 'You are Agent Beta, friendly.' },\n  { name: 'Agent Gamma', personality: 'creative', systemPrompt: 'You are Agent Gamma, creative.' }\n];\nconst agent = agents[idx];\nreturn [{ json: { storedId: row.id, bot_token: row.bot_token, raw: data, agent_name: agent.name, agent_personality: agent.personality, agent_system_prompt: agent.systemPrompt } }];"
+      },
+      "id": "assign-agent",
+      "name": "Assign Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "body",
+        "options": {},
+        "url": "http://127.0.0.1:5678/webhook/generate-and-reply",
+        "method": "POST",
+        "bodyParametersJson": "={ \"storedId\": {{$json.storedId}}, \"bot_token\": \"{{$json.bot_token}}\", \"raw\": {{$json.raw}}, \"agent_name\": \"{{$json.agent_name}}\", \"agent_personality\": \"{{$json.agent_personality}}\", \"agent_system_prompt\": \"{{$json.agent_system_prompt}}\" }",
+        "headerParametersJson": "={ 'Content-Type': 'application/json' }"
+      },
+      "id": "call-llm",
+      "name": "Call Generate & Reply Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1040, 300]
+    }
+  ],
+  "connections": {
+    "Process Message Webhook": { "main": [ [ { "node": "Select Stored Update", "type": "main", "index": 0 } ] ] },
+    "Select Stored Update": { "main": [ [ { "node": "Assign Agent", "type": "main", "index": 0 } ] ] },
+    "Assign Agent": { "main": [ [ { "node": "Call Generate & Reply Webhook", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "2",
+  "meta": { "instanceId": "n8n-local" }
+}

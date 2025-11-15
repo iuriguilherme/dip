@@ -265,3 +265,18 @@ This entry is appended to preserve the full history of AI-assisted edits. I will
 - `AGENTS.md` — detailed documentation of the three AI agents (Alpha, Beta, Gamma) including personalities, system prompts, and customization instructions (moved to root folder for prominence)
 
 
+
+### 2025-11-15  AI Append: Telegram multi-agent poller troubleshooting and reset
+
+- **Session scope**: Attempted to fix import/runtime errors in `workflows/telegram-multi-agent-poller.json` on a fresh n8n 1.120.2 stack.
+- **Key edits**:
+  - Escaped SQL strings to double single-quotes within Postgres nodes for safe ingestion.
+  - Replaced `process.env` references in the `Prepare Bots` Code node with n8n-compatible environment access patterns and reworked bot preparation via `Set`/`Item Lists` nodes.
+  - Iteratively refactored the trigger pipeline (introducing and later removing `Seed Bots`, `Split Bots`, `Load Last Update`, `Apply Offset`) attempting to satisfy n8n schema validation and offset persistence.
+- **Issues encountered**:
+  - Persistent n8n import validation error: “Could not find property option” with no explicit node reference.
+  - Runtime failures in `Prepare Bots` (`process is not defined`, `this.getWorkflowStaticData is not a function`, `this.helpers.getWorkflowStaticData is not a function`) when executed inside n8n’s restricted sandbox.
+  - Rolling back intermediate edits became complex; final workflow state is not validated.
+- **Environment updates**: `docker-compose.yml` now mounts persistent directories under `./instance/` and uses `n8nio/n8n:1.120.2`; `postgres` data volume similarly relocated.
+- **Outcome**: No stable workflow delivered. Work paused, per user instruction, to document findings and restart from a clean approach.
+- **Next steps**: Start over with a fresh workflow strategy while preserving documentation of prior attempts here.

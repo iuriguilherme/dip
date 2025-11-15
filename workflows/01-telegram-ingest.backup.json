@@ -1,0 +1,134 @@
+{
+  "name": "01 - Telegram Ingest",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_1}}",
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": false
+        }
+      },
+      "id": "tg-trigger-1",
+      "name": "Telegram Bot 1 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [240, 200],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_2}}",
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": false
+        }
+      },
+      "id": "tg-trigger-2",
+      "name": "Telegram Bot 2 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [240, 400],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_3}}",
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": false
+        }
+      },
+      "id": "tg-trigger-3",
+      "name": "Telegram Bot 3 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [240, 600],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "mode": "passThrough",
+        "mergeInfo": {}
+      },
+      "id": "merge-updates",
+      "name": "Merge Telegram Updates",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.message?.text}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "filter-text",
+      "name": "Filter Text Messages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO telegram_updates (bot_token, update_id, message_id, chat_id, user_id, username, first_name, last_name, message_text, message_type, message_date, raw_data) VALUES ('{{$json.bot_token}}', {{$json.update_id}}, {{$json.message.message_id}}, {{$json.message.chat.id}}, {{$json.message.from.id}}, '{{$json.message.from.username}}', '{{$json.message.from.first_name}}', '{{$json.message.from.last_name}}', '{{$json.message.text}}', 'text', to_timestamp({{$json.message.date}}), '{{$json}}'::jsonb) ON CONFLICT (bot_token, update_id) DO NOTHING RETURNING id;",
+        "additionalFields": {}
+      },
+      "id": "store-update",
+      "name": "Store Telegram Update",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "body",
+        "options": {},
+        "url": "http://127.0.0.1:5678/webhook/process-message",
+        "method": "POST",
+        "bodyParametersJson": "={\"updateId\": {{$json[0].id}} }",
+        "headerParametersJson": "={ 'Content-Type': 'application/json' }"
+      },
+      "id": "call-processor",
+      "name": "Call Processor Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Telegram Bot 1 Trigger": { "main": [ [ { "node": "Merge Telegram Updates", "type": "main", "index": 0 } ] ] },
+    "Telegram Bot 2 Trigger": { "main": [ [ { "node": "Merge Telegram Updates", "type": "main", "index": 1 } ] ] },
+    "Telegram Bot 3 Trigger": { "main": [ [ { "node": "Merge Telegram Updates", "type": "main", "index": 2 } ] ] },
+    "Merge Telegram Updates": { "main": [ [ { "node": "Filter Text Messages", "type": "main", "index": 0 } ] ] },
+    "Filter Text Messages": { "main": [ [ { "node": "Store Telegram Update", "type": "main", "index": 0 } ] ] },
+    "Store Telegram Update": { "main": [ [ { "node": "Call Processor Webhook", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "1",
+  "meta": { "instanceId": "n8n-local" }
+  ,"_import_test_ts": "2025-11-15T00:00:00Z"
+}

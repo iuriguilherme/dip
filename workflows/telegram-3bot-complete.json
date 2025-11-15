@@ -1,0 +1,258 @@
+{
+  "name": "Telegram 3-Bot Complete System",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_1}}",
+        "updates": ["message"]
+      },
+      "id": "bot1-trigger",
+      "name": "Bot 1",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [240, 240]
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_2}}",
+        "updates": ["message"]
+      },
+      "id": "bot2-trigger",
+      "name": "Bot 2",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [240, 420]
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_3}}",
+        "updates": ["message"]
+      },
+      "id": "bot3-trigger",
+      "name": "Bot 3",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [240, 600]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll"
+      },
+      "id": "merge",
+      "name": "Merge All Bots",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [460, 420]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.message.text}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "filter",
+      "name": "Only Text Messages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [660, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract message details and assign agent\nconst message = $json.message;\nconst chatId = message.chat.id;\n\n// Determine which bot token was used\nlet botToken = 'bot1';\nif ($json.bot_token) {\n  botToken = $json.bot_token;\n}\n\n// Hash function for consistent agent assignment\nfunction hashChatId(chatId) {\n  const str = String(chatId);\n  let hash = 0;\n  for (let i = 0; i < str.length; i++) {\n    hash = ((hash << 5) - hash) + str.charCodeAt(i);\n    hash = hash & hash;\n  }\n  return Math.abs(hash);\n}\n\n// Define agents\nconst agents = [\n  {\n    name: 'Agent Alpha',\n    personality: 'professional',\n    systemPrompt: 'You are Agent Alpha, a professional and analytical AI assistant. Provide clear, concise, well-structured responses focused on facts and logical reasoning.'\n  },\n  {\n    name: 'Agent Beta',\n    personality: 'friendly',\n    systemPrompt: 'You are Agent Beta, a friendly and empathetic AI assistant. Be warm, conversational, and use casual language. Show that you care about the user\\'s feelings.'\n  },\n  {\n    name: 'Agent Gamma',\n    personality: 'creative',\n    systemPrompt: 'You are Agent Gamma, a creative and imaginative AI assistant. Think outside the box, use metaphors and analogies. Provide unique perspectives and enjoy wordplay.'\n  }\n];\n\nconst agentIndex = hashChatId(chatId) % 3;\nconst agent = agents[agentIndex];\n\nreturn {\n  json: {\n    bot_token: botToken,\n    update_id: $json.update_id,\n    message_id: message.message_id,\n    chat_id: chatId,\n    user_id: message.from.id,\n    username: message.from.username || 'unknown',\n    first_name: message.from.first_name || 'User',\n    last_name: message.from.last_name || '',\n    message_text: message.text,\n    message_date: new Date(message.date * 1000).toISOString(),\n    agent_name: agent.name,\n    agent_personality: agent.personality,\n    agent_system_prompt: agent.systemPrompt,\n    raw_message: message\n  }\n};"
+      },
+      "id": "process",
+      "name": "Process & Assign Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 420]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO telegram_updates (\n  bot_token, update_id, message_id, chat_id, user_id,\n  username, first_name, last_name, message_text,\n  message_type, message_date, raw_data\n) VALUES (\n  '{{$json.bot_token}}',\n  {{$json.update_id}},\n  {{$json.message_id}},\n  {{$json.chat_id}},\n  {{$json.user_id}},\n  '{{$json.username}}',\n  '{{$json.first_name}}',\n  '{{$json.last_name}}',\n  '{{$json.message_text.replace(/'/g, \"''\")}}',\n  'text',\n  '{{$json.message_date}}',\n  '{{JSON.stringify($json.raw_message).replace(/'/g, \"''\")}}'\n)\nON CONFLICT (bot_token, update_id) \nDO UPDATE SET message_text = EXCLUDED.message_text\nRETURNING id;",
+        "options": {}
+      },
+      "id": "store-db",
+      "name": "Store in DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1060, 420],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-cred",
+          "name": "PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT message_role, message_content\nFROM agent_memory\nWHERE agent_name = '{{$json.agent_name}}'\n  AND chat_id = {{$json.chat_id}}\n  AND expires_at > NOW()\n  AND message_timestamp > NOW() - INTERVAL '1 hour'\nORDER BY message_timestamp ASC\nLIMIT 10;",
+        "options": {}
+      },
+      "id": "get-memory",
+      "name": "Get Memory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1260, 420],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-cred",
+          "name": "PostgreSQL"
+        }
+      },
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build conversation context\nconst mainData = $input.first().json;\nconst memoryItems = $input.all().slice(1);\n\nlet contextText = mainData.agent_system_prompt + \"\\n\\n\";\n\nif (memoryItems.length > 0) {\n  contextText += \"Recent conversation:\\n\";\n  for (const item of memoryItems) {\n    if (item.json.message_role && item.json.message_content) {\n      const role = item.json.message_role === 'user' ? 'User' : 'Assistant';\n      contextText += `${role}: ${item.json.message_content}\\n`;\n    }\n  }\n  contextText += \"\\n\";\n}\n\ncontextText += `User ${mainData.first_name}: ${mainData.message_text}\\n\\nAssistant:`;\n\nreturn {\n  json: {\n    ...mainData,\n    context_text: contextText,\n    has_memory: memoryItems.length > 0\n  }\n};"
+      },
+      "id": "build-context",
+      "name": "Build Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1460, 420]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/{{$env.LLM_MODEL}}:generateContent?key={{$env.GEMINI_API_KEY}}",
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParametersJson": "={\n  \"contents\": [{\n    \"parts\": [{\n      \"text\": {{JSON.stringify($json.context_text)}}\n    }]\n  }],\n  \"generationConfig\": {\n    \"temperature\": 0.7,\n    \"maxOutputTokens\": 500\n  }\n}",
+        "options": {}
+      },
+      "id": "llm-call",
+      "name": "Call LLM (Gemini)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1660, 420],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract response from LLM\nconst mainData = $input.first().json;\n\nlet responseText = 'Sorry, I could not generate a response at this time.';\nlet promptTokens = 0;\nlet completionTokens = 0;\n\nif (mainData.candidates && mainData.candidates[0]) {\n  const candidate = mainData.candidates[0];\n  if (candidate.content && candidate.content.parts && candidate.content.parts[0]) {\n    responseText = candidate.content.parts[0].text || responseText;\n  }\n}\n\nif (mainData.usageMetadata) {\n  promptTokens = mainData.usageMetadata.promptTokenCount || 0;\n  completionTokens = mainData.usageMetadata.candidatesTokenCount || 0;\n}\n\n// Get original data from Build Context node\nconst originalData = $node[\"Build Context\"].json;\n\nreturn {\n  json: {\n    ...originalData,\n    llm_response: responseText,\n    prompt_tokens: promptTokens,\n    completion_tokens: completionTokens,\n    total_tokens: promptTokens + completionTokens\n  }\n};"
+      },
+      "id": "extract",
+      "name": "Extract Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1860, 420]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO agent_responses (\n  update_id, agent_name, agent_personality,\n  response_text, llm_model, prompt_tokens, completion_tokens\n) VALUES (\n  (SELECT id FROM telegram_updates WHERE chat_id = {{$json.chat_id}} ORDER BY created_at DESC LIMIT 1),\n  '{{$json.agent_name}}',\n  '{{$json.agent_personality}}',\n  '{{$json.llm_response.replace(/'/g, \"''\")}}',\n  '{{$env.LLM_MODEL}}',\n  {{$json.prompt_tokens}},\n  {{$json.completion_tokens}}\n)\nRETURNING id;",
+        "options": {}
+      },
+      "id": "store-response",
+      "name": "Store Response",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2060, 420],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-cred",
+          "name": "PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$json.bot_token === 'bot1' ? $env.TELEGRAM_BOT_TOKEN_1 : ($json.bot_token === 'bot2' ? $env.TELEGRAM_BOT_TOKEN_2 : $env.TELEGRAM_BOT_TOKEN_3)}}",
+        "chatId": "={{$json.chat_id}}",
+        "text": "={{$json.llm_response}}",
+        "additionalFields": {
+          "replyToMessageId": "={{$json.message_id}}"
+        }
+      },
+      "id": "send",
+      "name": "Send Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [2260, 420]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO agent_memory (\n  agent_name, chat_id, message_role,\n  message_content, message_timestamp, expires_at\n) VALUES \n(\n  '{{$json.agent_name}}',\n  {{$json.chat_id}},\n  'user',\n  '{{$json.message_text.replace(/'/g, \"''\")}}',\n  NOW(),\n  NOW() + INTERVAL '1 hour'\n),\n(\n  '{{$json.agent_name}}',\n  {{$json.chat_id}},\n  'assistant',\n  '{{$json.llm_response.replace(/'/g, \"''\")}}',\n  NOW(),\n  NOW() + INTERVAL '1 hour'\n);",
+        "options": {}
+      },
+      "id": "update-memory",
+      "name": "Update Memory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2460, 420],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-cred",
+          "name": "PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Bot 1": {
+      "main": [[{"node": "Merge All Bots", "type": "main", "index": 0}]]
+    },
+    "Bot 2": {
+      "main": [[{"node": "Merge All Bots", "type": "main", "index": 0}]]
+    },
+    "Bot 3": {
+      "main": [[{"node": "Merge All Bots", "type": "main", "index": 0}]]
+    },
+    "Merge All Bots": {
+      "main": [[{"node": "Only Text Messages", "type": "main", "index": 0}]]
+    },
+    "Only Text Messages": {
+      "main": [[{"node": "Process & Assign Agent", "type": "main", "index": 0}]]
+    },
+    "Process & Assign Agent": {
+      "main": [[{"node": "Store in DB", "type": "main", "index": 0}]]
+    },
+    "Store in DB": {
+      "main": [[{"node": "Get Memory", "type": "main", "index": 0}]]
+    },
+    "Get Memory": {
+      "main": [[{"node": "Build Context", "type": "main", "index": 0}]]
+    },
+    "Build Context": {
+      "main": [[{"node": "Call LLM (Gemini)", "type": "main", "index": 0}]]
+    },
+    "Call LLM (Gemini)": {
+      "main": [[{"node": "Extract Response", "type": "main", "index": 0}]]
+    },
+    "Extract Response": {
+      "main": [[{"node": "Store Response", "type": "main", "index": 0}]]
+    },
+    "Store Response": {
+      "main": [[{"node": "Send Reply", "type": "main", "index": 0}]]
+    },
+    "Send Reply": {
+      "main": [[{"node": "Update Memory", "type": "main", "index": 0}]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 3,
+  "updatedAt": "2025-11-15T18:40:00.000Z",
+  "versionId": "1"
+}

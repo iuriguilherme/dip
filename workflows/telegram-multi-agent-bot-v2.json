@@ -1,0 +1,269 @@
+{
+  "name": "Telegram Multi-Agent Bot v2",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_1}}",
+        "updates": [
+          "message"
+        ]
+      },
+      "id": "bot1-trigger",
+      "name": "Bot 1 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [260, 300],
+      "webhookId": "bot1"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_2}}",
+        "updates": [
+          "message"
+        ]
+      },
+      "id": "bot2-trigger",
+      "name": "Bot 2 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [260, 480],
+      "webhookId": "bot2"
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$env.TELEGRAM_BOT_TOKEN_3}}",
+        "updates": [
+          "message"
+        ]
+      },
+      "id": "bot3-trigger",
+      "name": "Bot 3 Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [260, 660],
+      "webhookId": "bot3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll"
+      },
+      "id": "merge-updates",
+      "name": "Merge Updates",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [480, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Store bot token for later use\nconst botTokenMap = {\n  [{{$env.TELEGRAM_BOT_TOKEN_1}}]: 'bot1',\n  [{{$env.TELEGRAM_BOT_TOKEN_2}}]: 'bot2',\n  [{{$env.TELEGRAM_BOT_TOKEN_3}}]: 'bot3'\n};\n\nfor (const item of $input.all()) {\n  const message = item.json.message;\n  \n  // Only process text messages\n  if (!message || !message.text) {\n    continue;\n  }\n  \n  return [{\n    json: {\n      bot_token: item.json.bot_token || 'unknown',\n      update_id: item.json.update_id,\n      message_id: message.message_id,\n      chat_id: message.chat.id,\n      user_id: message.from.id,\n      username: message.from.username || null,\n      first_name: message.from.first_name || null,\n      last_name: message.from.last_name || null,\n      message_text: message.text,\n      message_date: new Date(message.date * 1000).toISOString(),\n      raw_data: item.json\n    }\n  }];\n}\n\nreturn [];"
+      },
+      "id": "process-update",
+      "name": "Process Update",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 480]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO telegram_updates (\n  bot_token,\n  update_id,\n  message_id,\n  chat_id,\n  user_id,\n  username,\n  first_name,\n  last_name,\n  message_text,\n  message_type,\n  message_date,\n  raw_data\n) VALUES (\n  '{{$json.bot_token}}',\n  {{$json.update_id}},\n  {{$json.message_id}},\n  {{$json.chat_id}},\n  {{$json.user_id}},\n  '{{$json.username}}',\n  '{{$json.first_name}}',\n  '{{$json.last_name}}',\n  '{{$json.message_text}}',\n  'text',\n  '{{$json.message_date}}',\n  '{{JSON.stringify($json.raw_data)}}'\n)\nON CONFLICT (bot_token, update_id) DO UPDATE\nSET message_text = EXCLUDED.message_text\nRETURNING id;",
+        "options": {}
+      },
+      "id": "store-update",
+      "name": "Store Update",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [920, 480],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assign agent based on chat ID hash\nconst agents = [\n  {\n    name: 'Agent Alpha',\n    personality: 'professional',\n    systemPrompt: 'You are Agent Alpha, a professional and analytical AI assistant. You provide clear, concise, and well-structured responses. You focus on facts and logical reasoning.'\n  },\n  {\n    name: 'Agent Beta',\n    personality: 'friendly',\n    systemPrompt: 'You are Agent Beta, a friendly and empathetic AI assistant. You are warm, conversational, and use casual language. You care about the user\\'s feelings and provide supportive responses.'\n  },\n  {\n    name: 'Agent Gamma',\n    personality: 'creative',\n    systemPrompt: 'You are Agent Gamma, a creative and imaginative AI assistant. You think outside the box, use metaphors and analogies, and provide unique perspectives. You enjoy wordplay and creative solutions.'\n  }\n];\n\nfunction hashChatId(chatId) {\n  const str = String(chatId);\n  let hash = 0;\n  for (let i = 0; i < str.length; i++) {\n    hash = ((hash << 5) - hash) + str.charCodeAt(i);\n    hash = hash & hash;\n  }\n  return Math.abs(hash);\n}\n\nconst items = [];\nfor (const item of $input.all()) {\n  const chatId = item.json.chat_id;\n  const agentIndex = hashChatId(chatId) % 3;\n  const agent = agents[agentIndex];\n  \n  items.push({\n    json: {\n      ...item.json,\n      agent_name: agent.name,\n      agent_personality: agent.personality,\n      agent_system_prompt: agent.systemPrompt\n    }\n  });\n}\n\nreturn items;"
+      },
+      "id": "assign-agent",
+      "name": "Assign Agent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1140, 480]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  message_role,\n  message_content,\n  message_timestamp\nFROM agent_memory\nWHERE agent_name = '{{$json.agent_name}}'\n  AND chat_id = {{$json.chat_id}}\n  AND expires_at > NOW()\n  AND message_timestamp > NOW() - INTERVAL '1 hour'\nORDER BY message_timestamp ASC\nLIMIT 20;",
+        "options": {}
+      },
+      "id": "get-memory",
+      "name": "Get Agent Memory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1360, 480],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build conversation context from memory\nconst currentItem = $input.first().json;\nconst memoryItems = $input.all().slice(1);\n\nconst messages = [];\n\n// Add memory messages\nfor (const item of memoryItems) {\n  if (item.json.message_role && item.json.message_content) {\n    messages.push({\n      role: item.json.message_role,\n      content: item.json.message_content\n    });\n  }\n}\n\n// Add current user message\nmessages.push({\n  role: 'user',\n  content: currentItem.message_text\n});\n\nreturn [{\n  json: {\n    ...currentItem,\n    conversation_history: messages,\n    has_memory: messages.length > 1\n  }\n}];"
+      },
+      "id": "build-context",
+      "name": "Build Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1580, 480]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/{{$env.LLM_MODEL}}:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{$env.GEMINI_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents",
+              "value": "={{ JSON.stringify([{ role: 'user', parts: [{ text: $json.agent_system_prompt + '\\n\\nConversation history:\\n' + ($json.conversation_history || []).map(m => m.role + ': ' + m.content).join('\\n') + '\\n\\nUser: ' + $json.message_text }] }]) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "llm-generate",
+      "name": "LLM Generate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1800, 480]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract LLM response\nconst item = $input.first().json;\nconst llmResponse = item.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';\n\nreturn [{\n  json: {\n    ...item,\n    llm_response: llmResponse,\n    prompt_tokens: item.usageMetadata?.promptTokenCount || 0,\n    completion_tokens: item.usageMetadata?.candidatesTokenCount || 0\n  }\n}];"
+      },
+      "id": "extract-response",
+      "name": "Extract Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2020, 480]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO agent_responses (\n  update_id,\n  agent_name,\n  agent_personality,\n  response_text,\n  llm_model,\n  prompt_tokens,\n  completion_tokens\n) VALUES (\n  (SELECT id FROM telegram_updates WHERE chat_id = {{$json.chat_id}} ORDER BY created_at DESC LIMIT 1),\n  '{{$json.agent_name}}',\n  '{{$json.agent_personality}}',\n  '{{$json.llm_response}}',\n  '{{$env.LLM_MODEL}}',\n  {{$json.prompt_tokens}},\n  {{$json.completion_tokens}}\n)\nRETURNING id;",
+        "options": {}
+      },
+      "id": "store-response",
+      "name": "Store Response",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2240, 480],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "accessToken": "={{$json.bot_token}}",
+        "chatId": "={{$json.chat_id}}",
+        "text": "={{$json.llm_response}}",
+        "additionalFields": {}
+      },
+      "id": "send-reply",
+      "name": "Send Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [2460, 480]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO agent_memory (\n  agent_name,\n  chat_id,\n  message_role,\n  message_content,\n  message_timestamp,\n  expires_at\n) VALUES \n(\n  '{{$json.agent_name}}',\n  {{$json.chat_id}},\n  'user',\n  '{{$json.message_text}}',\n  NOW(),\n  NOW() + INTERVAL '1 hour'\n),\n(\n  '{{$json.agent_name}}',\n  {{$json.chat_id}},\n  'assistant',\n  '{{$json.llm_response}}',\n  NOW(),\n  NOW() + INTERVAL '1 hour'\n);",
+        "options": {}
+      },
+      "id": "update-memory",
+      "name": "Update Memory",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2680, 480],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "Postgres"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Bot 1 Trigger": {
+      "main": [[{"node": "Merge Updates", "type": "main", "index": 0}]]
+    },
+    "Bot 2 Trigger": {
+      "main": [[{"node": "Merge Updates", "type": "main", "index": 0}]]
+    },
+    "Bot 3 Trigger": {
+      "main": [[{"node": "Merge Updates", "type": "main", "index": 0}]]
+    },
+    "Merge Updates": {
+      "main": [[{"node": "Process Update", "type": "main", "index": 0}]]
+    },
+    "Process Update": {
+      "main": [[{"node": "Store Update", "type": "main", "index": 0}]]
+    },
+    "Store Update": {
+      "main": [[{"node": "Assign Agent", "type": "main", "index": 0}]]
+    },
+    "Assign Agent": {
+      "main": [[{"node": "Get Agent Memory", "type": "main", "index": 0}]]
+    },
+    "Get Agent Memory": {
+      "main": [[{"node": "Build Context", "type": "main", "index": 0}]]
+    },
+    "Build Context": {
+      "main": [[{"node": "LLM Generate", "type": "main", "index": 0}]]
+    },
+    "LLM Generate": {
+      "main": [[{"node": "Extract Response", "type": "main", "index": 0}]]
+    },
+    "Extract Response": {
+      "main": [[{"node": "Store Response", "type": "main", "index": 0}]]
+    },
+    "Store Response": {
+      "main": [[{"node": "Send Reply", "type": "main", "index": 0}]]
+    },
+    "Send Reply": {
+      "main": [[{"node": "Update Memory", "type": "main", "index": 0}]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 3,
+  "updatedAt": "2025-11-15T18:30:00.000Z",
+  "versionId": "1"
+}
