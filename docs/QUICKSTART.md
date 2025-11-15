@@ -82,6 +82,12 @@ docker-compose ps
 
 You should see both `n8n_server` and `n8n_postgres` running.
 
+**Data Persistence**: Your data is automatically stored in `./instance/` directory:
+- `./instance/postgres_data/` - Database files
+- `./instance/n8n_data/` - n8n configuration
+
+This folder is gitignored, keeping your local data separate from the repository.
+
 ### Step 3: Configure n8n
 
 1. Open http://localhost:5678 in your browser
@@ -198,11 +204,12 @@ docker-compose logs -f postgres
 ## Stopping
 
 ```bash
-# Stop services
+# Stop services (data is preserved in ./instance/)
 docker-compose down
 
-# Stop and remove data (WARNING: deletes all messages)
-docker-compose down -v
+# Stop and remove all data (WARNING: deletes all messages)
+docker-compose down
+rm -rf ./instance/postgres_data ./instance/n8n_data
 ```
 
 ---

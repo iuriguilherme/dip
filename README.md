@@ -100,6 +100,12 @@ This will start:
 - PostgreSQL database (port 5432)
 - n8n server (port 5678)
 
+**Note**: Data is persisted in the `./instance/` directory:
+- `./instance/postgres_data/` - PostgreSQL database files
+- `./instance/n8n_data/` - n8n configuration and workflows
+
+This directory is excluded from version control (.gitignore) to keep your local data separate from the repository.
+
 ### 4. Access n8n
 
 Open your browser and navigate to:
@@ -237,10 +243,11 @@ OPENAI_API_BASE=https://your-llm-endpoint.com/v1
 docker-compose down
 ```
 
-To also remove data volumes:
+**Note**: Your data in `./instance/` will be preserved. To completely remove all data:
 
 ```bash
-docker-compose down -v
+docker-compose down
+rm -rf ./instance/postgres_data ./instance/n8n_data
 ```
 
 ## Development

@@ -280,3 +280,36 @@ This entry is appended to preserve the full history of AI-assisted edits. I will
 - **Environment updates**: `docker-compose.yml` now mounts persistent directories under `./instance/` and uses `n8nio/n8n:1.120.2`; `postgres` data volume similarly relocated.
 - **Outcome**: No stable workflow delivered. Work paused, per user instruction, to document findings and restart from a clean approach.
 - **Next steps**: Start over with a fresh workflow strategy while preserving documentation of prior attempts here.
+
+### 2025-11-15  AI Append: Infrastructure cleanup and documentation updates
+
+- **Session scope**: Simplified Docker setup, corrected environment variables, and documented persistent data storage strategy.
+- **Files modified**:
+  - **`docker-compose.yml`**:
+    - Removed custom entrypoint script references and switched to stock `n8nio/n8n:1.120.2` image
+    - Updated volume mounts to use `./instance/postgres_data` and `./instance/n8n_data` for persistent local storage
+    - Removed commented-out entrypoint configuration lines
+  - **`.gitignore`**:
+    - Added `instance/` directory to exclude local data volumes from version control
+  - **`.env.example`**:
+    - Fixed Postgres environment variable documentation to align with official postgres Docker image requirements
+    - Reordered variable declarations and added clarifying comments per official documentation
+    - Reorganized LLM provider configuration section for better clarity
+  - **`docker/entrypoint.js`**:
+    - Deleted custom entrypoint script (no longer needed with simplified setup)
+  - **Workflow cleanup**:
+    - Removed experimental/failed workflow variants: `simple-telegram-bot.json`, `telegram-3bot-complete.json`, `telegram-multi-agent-bot-v2.json`, `telegram-multi-agent-long-polling.json`, `telegram-multi-agent-poller.json`
+    - These were attempts during the troubleshooting session that did not reach stable state
+- **Documentation updates**:
+  - **`README.md`**:
+    - Added persistent data storage section explaining `./instance/` directory structure
+    - Updated "Stopping the Services" section with instructions for data preservation vs. complete removal
+  - **`docs/QUICKSTART.md`**:
+    - Added "Data Persistence" note in Step 2 explaining local storage locations
+    - Updated "Stopping" section with data preservation instructions
+- **Key improvements**:
+  - Simplified deployment: removed custom entrypoint complexity, now using stock n8n image
+  - Data persistence: local volumes in `./instance/` are gitignored but preserved across container restarts
+  - Cleaner repository: removed intermediate/experimental workflow files
+  - Better documentation: users now understand where their data is stored and how to manage it
+- **Postgres environment variables**: Confirmed alignment with official postgres Docker image documentation (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` are the standard variables required by the official image)
