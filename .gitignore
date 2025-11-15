@@ -31,3 +31,5 @@ temp/
 backup*.sql
 dump*.sql
 *.bak
+
+instance

@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./instance/postgres_data:/var/lib/postgresql/data
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
@@ -16,8 +16,7 @@ services:
       retries: 5
 
   n8n:
-    build: ./docker
-    image: n8nio/n8n:custom-local
+    image: n8nio/n8n:1.120.2
     container_name: n8n_server
     user: "node"
     ports:
@@ -25,11 +24,11 @@ services:
     env_file:
       - .env
     volumes:
-      - n8n_data:/home/node/.n8n
+      - ./instance/n8n_data:/home/node/.n8n
       - ./workflows:/home/node/.n8n/workflows
-      - ./docker/entrypoint.js:/usr/local/bin/entrypoint.js
+      # - ./docker/entrypoint.js:/usr/local/bin/entrypoint.js
     working_dir: /home/node/.n8n
-    entrypoint: ["node", "/usr/local/bin/entrypoint.js"]
+    # entrypoint: ["node", "/usr/local/bin/entrypoint.js"]
     depends_on:
       postgres:
         condition: service_healthy
