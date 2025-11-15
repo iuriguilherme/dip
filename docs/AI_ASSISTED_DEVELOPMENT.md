@@ -188,4 +188,80 @@ This entry is appended to preserve the full history of AI-assisted edits. I will
 - Validated `docker-compose` config; services reported: `postgres`, `n8n`.
 - Appended this entry to `docs/AI_ASSISTED_DEVELOPMENT.md` and committed changes locally. The branch is ahead of `origin/main` by one commit; run `git push origin main` to publish.
 
+---
+
+### 2025-11-15  AI Append: Enhanced workflow import system and environment variable cleanup
+
+**Session scope**: Improved automatic workflow import/replace on startup, enhanced logging, and centralized environment configuration.
+
+**Files Modified**:
+
+- **`docker-compose.yml`**:
+  - Added `user: "node"` to n8n service for proper file permissions
+  - Removed inline `environment:` block (moved vars to `.env`)
+  - Added volume mount for entrypoint script: `./docker/entrypoint.js:/usr/local/bin/entrypoint.js`
+  - Set `working_dir: /home/node/.n8n`
+  - Configured custom entrypoint: `["node", "/usr/local/bin/entrypoint.js"]`
+  - Added healthcheck for n8n service using `/rest/healthz` endpoint
+  - All environment variables now loaded exclusively from `.env` file
+
+- **`docker/entrypoint.js`**:
+  - Complete rewrite of logging system with structured log levels (DEBUG, INFO, WARN, ERROR)
+  - Added timestamps to all log messages for better debugging
+  - Enhanced workflow import logic:
+    - Better error handling with specific error messages
+    - Improved REST API workflow update with detailed status reporting
+    - More reliable CLI fallback mechanism
+    - Success/failure counting and reporting
+    - Visual indicators (✓ and ✗) for operation status
+  - Improved file watcher with better debouncing (1 second delay)
+  - Added comprehensive startup banner with clear status messages
+  - Better process lifecycle management with graceful shutdown
+
+- **`.env.example`**:
+  - Updated `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS` from `true` to `false` (prevents Docker volume permission issues)
+  - Added `N8N_DIAGNOSTICS_ENABLED=true` for enhanced error logging
+  - Added `N8N_DEFAULT_BINARY_DATA_MODE=filesystem` for proper file handling
+  - Added explanatory comments for each new variable
+
+**Key Improvements**:
+
+1. **Automatic Workflow Import on Startup**:
+   - n8n now automatically imports/replaces all workflows in the `workflows/` folder when the container starts
+   - Workflows are first updated via REST API if they already exist (preserving workflow IDs)
+   - Falls back to CLI import for new workflows or if REST fails
+   - Detailed logging shows which workflows succeeded/failed
+
+2. **Live Reload**:
+   - File watcher detects changes to workflow JSON files
+   - Automatically re-imports modified workflows without container restart
+   - 1-second debounce prevents multiple rapid imports
+
+3. **Better Logging**:
+   - Structured log levels with timestamps
+   - Clear visual feedback (✓/✗) for operations
+   - Progress reporting during import process
+   - Startup banner shows system status clearly
+
+4. **Environment Variable Cleanup**:
+   - All configuration centralized in `.env` file
+   - No hardcoded environment variables in `docker-compose.yml`
+   - Cleaner separation of concerns
+
+**Operation**:
+- Place workflow JSON files in `workflows/` directory
+- Start container: `docker-compose up -d`
+- Watch logs: `docker-compose logs -f n8n`
+- Workflows are automatically imported and updated on startup
+- Any changes to workflow files trigger automatic re-import
+
+**Troubleshooting**:
+- Check logs for detailed import status and error messages
+- Look for lines with ✓ (success) or ✗ (failure) indicators
+- If REST API fails, the system automatically falls back to CLI import
+- All errors include specific file paths and error messages
+
+**Created Documentation**:
+- `AGENTS.md` — detailed documentation of the three AI agents (Alpha, Beta, Gamma) including personalities, system prompts, and customization instructions (moved to root folder for prominence)
+
 

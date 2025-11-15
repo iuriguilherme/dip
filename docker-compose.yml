@@ -19,19 +19,26 @@ services:
     build: ./docker
     image: n8nio/n8n:custom-local
     container_name: n8n_server
+    user: "node"
     ports:
       - "5678:5678"
     env_file:
       - .env
-    # ensure workflows are available in container and entrypoint will run imports
     volumes:
       - n8n_data:/home/node/.n8n
       - ./workflows:/home/node/.n8n/workflows
-    
+      - ./docker/entrypoint.js:/usr/local/bin/entrypoint.js
+    working_dir: /home/node/.n8n
+    entrypoint: ["node", "/usr/local/bin/entrypoint.js"]
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/rest/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   postgres_data:

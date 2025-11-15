@@ -22,6 +22,7 @@ This project implements an n8n workflow that receives updates from three Telegra
 
 - [Quick Start Guide](docs/QUICKSTART.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
+- [AI Agents Guide](AGENTS.md) - Detailed information about the three AI agents
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [AI-Assisted Development Log](docs/AI_ASSISTED_DEVELOPMENT.md)
 
@@ -158,6 +159,8 @@ Before activating the workflow, you need to set up credentials in n8n:
 - **Agent Gamma** (Creative): Delivers imaginative, metaphorical, unique perspectives
 
 Each chat is consistently assigned to the same agent based on the chat ID.
+
+For detailed information about agent personalities, customization options, and memory system, see the [AI Agents Guide](AGENTS.md).
 
 ### Memory System
 
