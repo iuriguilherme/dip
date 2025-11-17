@@ -30,6 +30,7 @@ services:
     volumes:
       - ./instance/n8n_data:/home/node/.n8n
       - ./workflows:/home/node/.n8n/workflows
+      - ./custom/dist:/home/node/.n8n/custom
     working_dir: /home/node/.n8n
     depends_on:
       postgres:
