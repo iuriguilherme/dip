@@ -1,0 +1,185 @@
+{
+  "name": "celiio_step1-iodes_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "nodeCredentialType": "telegramApi"
+      },
+      "type": "n8n-nodes-unsafe-extract-credentials.ExtractCredentials",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -752
+      ],
+      "id": "1d1e24be-13fd-4b54-94f8-52b608bea2ee",
+      "name": "Iodes Credentials",
+      "credentials": {
+        "telegramApi": {
+          "id": "xX83j0976UXp2Mnl",
+          "name": "Iodes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -784,
+        -848
+      ],
+      "id": "77208697-5dc7-416c-9c2e-8bf529ac8b40",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2531bde-f9ab-4e8a-bf8f-2a3ca5e04b2b",
+              "name": "bot_name",
+              "value": "={{ $json.bot_name }}",
+              "type": "string"
+            },
+            {
+              "id": "3cc9cfb4-4d5e-458f-8606-c80145ef1151",
+              "name": "bot_id",
+              "value": "={{ $json.bot_id }}",
+              "type": "string"
+            },
+            {
+              "id": "2464e572-4eba-4602-9229-b66160573e13",
+              "name": "accessToken",
+              "value": "={{ $json.accessToken }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        -848
+      ],
+      "id": "9ee6ed2d-0dbe-4938-83a6-3414062f22af",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "79zHpN094Qxc7zFn",
+          "mode": "list",
+          "cachedResultName": "bot_ids",
+          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/79zHpN094Qxc7zFn"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "bot_name",
+              "keyValue": "={{ $json.bot_name }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -944
+      ],
+      "id": "078f7dcd-d452-43f8-90cc-c91b6a0a0c75",
+      "name": "Get bot data",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "bot_name"
+            }
+          ]
+        }
+      },
+      "id": "ae51785d-40d4-46bc-9220-ae536f0b87ba",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1232,
+        -848
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Iodes Credentials": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get bot data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Get bot data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Iodes Credentials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "24f4c7ce-98b9-4464-8590-2d6630628fc3",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "MPxJIkQeJ0IHleh5",
+  "tags": []
+}

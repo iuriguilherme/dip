@@ -1,0 +1,609 @@
+{
+  "name": "cellio_step2_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "telegram_messages",
+          "mode": "list",
+          "cachedResultName": "telegram_messages"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message_id": "={{ $json.message_id }}",
+            "from_id": "={{ $json.from_id }}",
+            "chat_id": "={{ $json.chat_id }}",
+            "bot_id": "={{ $json.bot_id }}",
+            "first_name": "={{ $json.first_name }}",
+            "message_text": "={{ $json.message_text }}",
+            "message_date": "={{ $json.message_date }}",
+            "update_id": "={{ $json.update_id }}",
+            "unique_id": "={{ [$json.bot_id, $json.update_id, $json.chat_id, $json.from_id, $json.message_id ].join(\"_\") }}",
+            "chat_type": "={{ $json.chat_type }}",
+            "is_bot": false
+          },
+          "matchingColumns": [
+            "unique_id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "unique_id",
+              "displayName": "unique_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bot_id",
+              "displayName": "bot_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "update_id",
+              "displayName": "update_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "from_id",
+              "displayName": "from_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "message_id",
+              "displayName": "message_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "chat_type",
+              "displayName": "chat_type",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "message_text",
+              "displayName": "message_text",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "replied",
+              "displayName": "replied",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "is_bot",
+              "displayName": "is_bot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": false,
+              "removed": true
+            },
+            {
+              "id": "message_date",
+              "displayName": "message_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        688,
+        -760
+      ],
+      "id": "57909f34-97bd-4993-828f-08e178922cd1",
+      "name": "Insert or update rows in a table",
+      "retryOnFail": true,
+      "credentials": {
+        "postgres": {
+          "id": "Y1viSmm7SddnQ2ul",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "bot_name"
+            },
+            {
+              "name": "bot_id",
+              "type": "number"
+            },
+            {
+              "name": "accessToken"
+            }
+          ]
+        }
+      },
+      "id": "bf34197b-9ef1-4d78-8a93-daf72e4d1096",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -656,
+        -856
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "result",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -664
+      ],
+      "id": "8ed2c8b6-66e1-4211-9df4-772da1b6822f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "68440c79-c49f-4ec9-a2d6-b512293c13e4",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        16,
+        -664
+      ],
+      "id": "25d967df-dab4-4bae-a651-acf39a9c4fa8",
+      "name": "If message.text"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3adb67a-c36c-48df-b5df-3d5cb90aa174",
+              "name": "bot_id",
+              "value": "={{ $json.bot_id }}",
+              "type": "string"
+            },
+            {
+              "id": "9e792ac8-d468-4b4c-9884-4d5ae7fef905",
+              "name": "update_id",
+              "value": "={{ $json.update_id }}",
+              "type": "number"
+            },
+            {
+              "id": "458e0db4-ea9a-49ba-9646-29f4c4fcfa89",
+              "name": "message_id",
+              "value": "={{ $json.message.message_id }}",
+              "type": "number"
+            },
+            {
+              "id": "7c248edf-959d-4c32-a630-763479f4c3da",
+              "name": "from_id",
+              "value": "={{ $json.message.from.id }}",
+              "type": "number"
+            },
+            {
+              "id": "075b132e-b179-4226-9e9f-ff93b614252a",
+              "name": "first_name",
+              "value": "={{ $json.message.from.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "3e766c5b-0fe3-4939-bcfd-c27651d01ff3",
+              "name": "chat_id",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "78dde6a3-9167-4101-8cc7-c53f50b0a818",
+              "name": "chat_type",
+              "value": "={{ $json.message.chat.type }}",
+              "type": "string"
+            },
+            {
+              "id": "d8e8b8a7-f0f9-4fc8-a330-c3acee431463",
+              "name": "message_date",
+              "value": "={{ $json.message.date }}",
+              "type": "number"
+            },
+            {
+              "id": "880e476f-e2b4-440b-8c06-0c1a695d5e46",
+              "name": "message_text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        -760
+      ],
+      "id": "04f3453d-4bfa-4b09-adfe-3841d448361d",
+      "name": "Format for database"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $json.accessToken }}/getUpdates",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -432,
+        -664
+      ],
+      "id": "aea8fa5c-d3f1-4a10-94f1-9f728cc164b9",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "be2d7187-8ae3-401c-8eb6-8cb4087a73e2",
+              "name": "bot_name",
+              "value": "={{ $json.bot_name }}",
+              "type": "string"
+            },
+            {
+              "id": "4768b540-4719-4f79-99b4-e2e263cb06cd",
+              "name": "bot_id",
+              "value": "={{ $json.bot_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        -1024
+      ],
+      "id": "47caf1ed-5beb-4166-b8e2-3584d76c91e5",
+      "name": "Get bot data"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        912,
+        -976
+      ],
+      "id": "57c37e09-0dcf-4112-b1f3-03cc9dd9782a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        240,
+        -760
+      ],
+      "id": "adc0f3a4-2d2c-43fe-95ee-9d474d70620a",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "83cf65f7-69ff-4da0-855a-9cb8e0dd31b1",
+              "name": "bot_id",
+              "value": "={{ $json.bot_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        -856
+      ],
+      "id": "bb231812-709f-41d9-bd44-90107dddd266",
+      "name": "Get bot id"
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        -976
+      ],
+      "id": "3cff8b49-4d93-416c-b888-95bca98b2894",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error Storing in Database"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        912,
+        -712
+      ],
+      "id": "f8785a5c-5e99-4052-86b9-5fe6c7bb5ec5",
+      "name": "Stop and Error"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get bot data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get bot id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "If message.text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If message.text": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Format for database": {
+      "main": [
+        [
+          {
+            "node": "Insert or update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get bot data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert or update rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Format for database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get bot id": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0095c32e-898d-497c-aa76-cdcf1ab1db93",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "uY0xf4pD5GiReA34",
+  "tags": []
+}

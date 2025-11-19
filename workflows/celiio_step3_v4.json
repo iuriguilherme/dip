@@ -1,0 +1,421 @@
+{
+  "name": "celiio_step3_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "bot_name"
+            },
+            {
+              "name": "bot_id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -3952,
+        3120
+      ],
+      "id": "de353f89-635c-423a-aaf8-df1a621d1f3c",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2e61f8e4-edee-4645-9c7c-91cd0cc8f482",
+              "name": "bot_id",
+              "value": "={{ $json.bot_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3728,
+        3120
+      ],
+      "id": "4ce5e345-722c-4cbd-b1a0-b1a3e688d901",
+      "name": "Get bot id"
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2608,
+        3120
+      ],
+      "id": "b8e274bb-5a22-45e0-b68b-f32bd31cc908",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error getting messages from Database"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -3056,
+        3384
+      ],
+      "id": "1b9eaa42-681c-4bb6-b424-191c18652871",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ReMtvsSX6VOF5eIO",
+          "mode": "list",
+          "cachedResultName": "meta",
+          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/ReMtvsSX6VOF5eIO"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "start_from",
+              "condition": "isNotEmpty"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -3728,
+        3384
+      ],
+      "id": "c32ceea1-e9b0-41b0-b9f3-b2190c2a1438",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "telegram_messages",
+          "mode": "list",
+          "cachedResultName": "telegram_messages"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "replied",
+              "value": "f"
+            },
+            {
+              "column": "bot_id",
+              "condition": "!=",
+              "value": "={{ $json.bot_id }}"
+            },
+            {
+              "column": "message_date",
+              "condition": ">=",
+              "value": "={{ $json.start_from.toDateTime('s').setZone('GMT', {keepLocalTime: true}).toSeconds() }}"
+            },
+            {
+              "column": "is_bot",
+              "value": "t"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "id",
+            "chat_id",
+            "from_id",
+            "message_id",
+            "message_text",
+            "is_bot"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -3280,
+        3432
+      ],
+      "id": "c0bc4b6c-3a27-4c43-a54e-d2b42c0c97c2",
+      "name": "Get unreplied bot messages",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "Y1viSmm7SddnQ2ul",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "telegram_messages",
+          "mode": "list",
+          "cachedResultName": "telegram_messages"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "replied",
+              "value": "f"
+            },
+            {
+              "column": "bot_id",
+              "value": "={{ $json.bot_id }}"
+            },
+            {
+              "column": "message_date",
+              "condition": ">=",
+              "value": "={{ $json.start_from.toDateTime('s').setZone('GMT', {keepLocalTime: true}).toSeconds() }}"
+            },
+            {
+              "column": "is_bot",
+              "value": "f"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "id",
+            "chat_id",
+            "from_id",
+            "message_id",
+            "message_text",
+            "is_bot"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -3280,
+        3144
+      ],
+      "id": "59e4424a-2e99-48ef-a366-e3c46ecba232",
+      "name": "Get unreplied messages",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "Y1viSmm7SddnQ2ul",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3056,
+        3192
+      ],
+      "id": "70fe4317-c630-45d2-bcc6-d1e209f97094",
+      "name": "Combine all messages"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3504,
+        3288
+      ],
+      "id": "b529d6f8-b9dd-4f29-904c-378c0254b9eb",
+      "name": "Combine data"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2832,
+        3120
+      ],
+      "id": "15c41d7f-f16d-414b-8bd1-29bb9eb568f2",
+      "name": "Combine messages and data"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "bot_name": "Ceres",
+          "bot_id": "5133924687"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get bot id",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combine messages and data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get bot id": {
+      "main": [
+        [
+          {
+            "node": "Combine data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Combine data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get unreplied bot messages": {
+      "main": [
+        [
+          {
+            "node": "Combine all messages",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get unreplied messages": {
+      "main": [
+        [
+          {
+            "node": "Combine all messages",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine all messages": {
+      "main": [
+        [
+          {
+            "node": "Combine messages and data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combine data": {
+      "main": [
+        [
+          {
+            "node": "Get unreplied bot messages",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get unreplied messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine messages and data": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1f5069a2-bb4c-41a5-8e2a-b0716002bbde",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "s8oz8ZRsaI6o3hu9",
+  "tags": []
+}

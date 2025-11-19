@@ -1,0 +1,344 @@
+{
+  "name": "celiio_step5-lithos_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1744,
+        4240
+      ],
+      "id": "2feed497-138c-420e-8d03-e847e2215808",
+      "name": "Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "saUqAMyGND8VCSJv",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:1b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1616,
+        4240
+      ],
+      "id": "a820bf83-179a-4a90-94a4-0c7d1b608f9b",
+      "name": "Ollama Fallback",
+      "credentials": {
+        "ollamaApi": {
+          "id": "z5iLUPNrKsoOv412",
+          "name": "Ollama Fallback"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Start').item.json.chat_id + \"_\" + $('Start').item.json.from_id }}",
+        "contextWindowLength": 300
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1488,
+        4240
+      ],
+      "id": "7a635470-f5c1-43ae-9e7f-c642fc07955d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please respond to the following message with creativity and imagination:\n\n{{ $json.message_text }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are Lithos, a creative and imaginative AI assistant. Your communication style is playful, unique, and inventive. You think outside the box, use metaphors and analogies, and enjoy wordplay. You provide unconventional perspectives and creative solutions. Your responses should spark imagination and encourage creative thinking. Don't be afraid to be original and expressive in your approach. Previous conversation messages have been retrieved from the database using the user identifier \"{{ $json.chat_id }}_{{ $json.from_id }}\" - use this conversation history to build upon previous creative exchanges and create a continuous narrative."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1688,
+        4016
+      ],
+      "id": "f57bec81-d862-4966-b5ac-49647853610c",
+      "name": "Lithos Agent",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1afaeca-0f5d-4cd4-a917-21785e88a905",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1280,
+        3872
+      ],
+      "id": "1363864c-8af1-4e9e-908b-3b06a6c2bda4",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message_text"
+            },
+            {
+              "name": "chat_id",
+              "type": "number"
+            },
+            {
+              "name": "from_id",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "id": "28b5de96-fb2f-417c-b4d2-7a97f3a3b6bf",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1968,
+        4016
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error on agent reply generation"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        4088
+      ],
+      "id": "c7b84ed4-6b2d-4fa7-8d73-ae9185a5d20d",
+      "name": "Stop and Error",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Get chat_id').item.json.chat_id }}",
+        "text": "=Contexto muito grande pros dois modelos. Foi na mensagem:\n\n```\n{{ $('Lithos Agent').item.json }}\n```",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": true,
+          "parse_mode": "MarkdownV2"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        4088
+      ],
+      "id": "3afce772-5c6e-4e2d-89e0-e1e8a2ca774c",
+      "name": "Log Error on Telegram",
+      "webhookId": "d4924726-5720-441a-a509-fc602d4983f5",
+      "credentials": {
+        "telegramApi": {
+          "id": "4gYEYYyYib1XSTfh",
+          "name": "Lithos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "499417a4-316b-4c93-a57c-a11ec77f31e4",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1056,
+        4160
+      ],
+      "id": "8880bcb8-f6d2-4c66-834f-3b1a848feb3e",
+      "name": "Get chat_id"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "S7SVuJd21M3G7fPB",
+          "mode": "list",
+          "cachedResultName": "chat_ids",
+          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/S7SVuJd21M3G7fPB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "title",
+              "keyValue": "debug"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        4160
+      ],
+      "id": "f664dd53-9109-43f6-bfe0-4084691ad229",
+      "name": "Get debug chat_id"
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "message_text": "teste",
+          "chat_id": 184636438,
+          "from_id": 184636438
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Ollama": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lithos Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Fallback": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lithos Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Lithos Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lithos Agent": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get debug chat_id",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Error on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Lithos Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error on Telegram": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get chat_id": {
+      "main": [
+        [
+          {
+            "node": "Log Error on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get debug chat_id": {
+      "main": [
+        [
+          {
+            "node": "Get chat_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "964010ad-5a45-428f-9032-5a8b03d7f160",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "XCjaHdmEzsLfd7mQ",
+  "tags": []
+}

@@ -1,0 +1,334 @@
+{
+  "name": "celiio_step5-iodes_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "gemma3:270m",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1744,
+        3792
+      ],
+      "id": "80c18fdf-9718-419e-a6c4-229dcc934ff6",
+      "name": "Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "saUqAMyGND8VCSJv",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gemma3:270m",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1616,
+        3792
+      ],
+      "id": "e8854b6f-9ac4-4a0c-8a26-e7ab4683b225",
+      "name": "Ollama Fallback",
+      "credentials": {
+        "ollamaApi": {
+          "id": "z5iLUPNrKsoOv412",
+          "name": "Ollama Fallback"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Start').item.json.chat_id + \"_\" + $('Start').item.json.from_id }}",
+        "contextWindowLength": 300
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1488,
+        3792
+      ],
+      "id": "763c5a51-26d8-48e7-89ae-6071daeeab13",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please analyze and respond to the following message in a professional and logical manner:\n\n{{ $json.message_text }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are Iodes, a professional and analytical AI assistant. Your communication style is formal, clear, and precise. You focus on facts, data, and logical reasoning to provide well-structured, evidence-based responses. You prioritize accuracy and objectivity in all your answers. Always organize your thoughts clearly and support your statements with concrete information. Previous conversation messages have been retrieved from the database using the user identifier \"{{ $json.chat_id }}_{{ $json.from_id }}\" - use this conversation history to maintain continuity and reference previous interactions when relevant."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1688,
+        3568
+      ],
+      "id": "54118adb-b8c5-4730-8ad6-6582a5d7d2c3",
+      "name": "Iodes Agent",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04dc1b78-fd81-4658-b1d3-c05a2be3f208",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1280,
+        3424
+      ],
+      "id": "f1caca83-2498-4aeb-81b2-ad9e5f07afad",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message_text"
+            },
+            {
+              "name": "chat_id",
+              "type": "number"
+            },
+            {
+              "name": "from_id",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "id": "60f6a893-794e-4814-aa14-a05d0b198efb",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1968,
+        3568
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error on agent reply generation"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        3640
+      ],
+      "id": "68fda6cb-899c-4120-af8f-7919f3255089",
+      "name": "Stop and Error",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Get chat_id').item.json.chat_id }}",
+        "text": "=Contexto muito grande pros dois modelos. Foi na mensagem:\n\n```\n{{ $('Iodes Agent').item.json }}\n```",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": true,
+          "parse_mode": "MarkdownV2"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        3640
+      ],
+      "id": "2debc566-afd2-4b83-a0a0-a1e5bca31969",
+      "name": "Log Error on Telegram",
+      "webhookId": "d4924726-5720-441a-a509-fc602d4983f5",
+      "credentials": {
+        "telegramApi": {
+          "id": "xX83j0976UXp2Mnl",
+          "name": "Iodes"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "499417a4-316b-4c93-a57c-a11ec77f31e4",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1056,
+        3712
+      ],
+      "id": "6aee6759-37b9-4329-8428-3cc69ee222af",
+      "name": "Get chat_id"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "S7SVuJd21M3G7fPB",
+          "mode": "list",
+          "cachedResultName": "chat_ids",
+          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/S7SVuJd21M3G7fPB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "title",
+              "keyValue": "debug"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        3712
+      ],
+      "id": "902a0482-cb62-4f18-89f0-44b61bfe349b",
+      "name": "Get debug chat_id"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Iodes Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Fallback": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Iodes Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Iodes Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iodes Agent": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get debug chat_id",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Error on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Iodes Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error on Telegram": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get chat_id": {
+      "main": [
+        [
+          {
+            "node": "Log Error on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get debug chat_id": {
+      "main": [
+        [
+          {
+            "node": "Get chat_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8eb13af2-90df-44e2-ba8f-3d505f694592",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "s6twfNayu6zI39LZ",
+  "tags": []
+}

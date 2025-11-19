@@ -1,0 +1,554 @@
+{
+  "name": "celiio_step8-iodes_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": true
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        144,
+        -336
+      ],
+      "id": "a39942b3-21a3-4565-a0ab-18040b67bf35",
+      "name": "Send a text message without reply",
+      "webhookId": "01568d7b-5f03-4cea-a501-833efbed2e14",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "xX83j0976UXp2Mnl",
+          "name": "Iodes"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": true,
+          "reply_to_message_id": "={{ $json.reply_to_message_id }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -304,
+        72
+      ],
+      "id": "d714abf8-5e9e-4aa1-92ef-d02b005f2961",
+      "name": "Send a text message as reply",
+      "webhookId": "01568d7b-5f03-4cea-a501-833efbed2e14",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "xX83j0976UXp2Mnl",
+          "name": "Iodes"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        -120
+      ],
+      "id": "67277891-0ea9-440f-8236-02dac93a8465",
+      "name": "Message ready for Telegram"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "399dc426-fd02-4265-b852-4c259207cfde",
+              "name": "message_id",
+              "value": "={{ $json.result.message_id }}",
+              "type": "number"
+            },
+            {
+              "id": "ff87ddd6-6a05-4e51-8db0-3990ec57508c",
+              "name": "from_id",
+              "value": "={{ $json.result.from.id }}",
+              "type": "number"
+            },
+            {
+              "id": "82cb06f2-db6f-4ed2-8fca-a4d595f49c36",
+              "name": "chat_id",
+              "value": "={{ $json.result.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "1a1ddbd8-af30-45be-8183-5b3ad2179a2d",
+              "name": "message_text",
+              "value": "={{ $json.result.text }}",
+              "type": "string"
+            },
+            {
+              "id": "1261d673-36c8-4c4f-bcfb-67e118f274ce",
+              "name": "message_date",
+              "value": "={{ $json.result.date }}",
+              "type": "number"
+            },
+            {
+              "id": "c826dd2d-b0af-4039-96d1-9936f65e7a6a",
+              "name": "first_name",
+              "value": "={{ $json.result.from.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "a09cfd72-2079-44df-ae63-64624ab60c28",
+              "name": "bot_id",
+              "value": "={{ $json.result.from.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        -528
+      ],
+      "id": "0b2fd8cb-e925-4620-b137-fc2c3bcfc0a3",
+      "name": "Craft chatbot message"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2273b8f4-df58-43bd-9e65-b929834ddd6e",
+              "name": "message_id",
+              "value": "={{ $json.message_id }}",
+              "type": "number"
+            },
+            {
+              "id": "0d267fd1-fb61-4152-9a11-87cec842a776",
+              "name": "from_id",
+              "value": "={{ $json.from_id }}",
+              "type": "number"
+            },
+            {
+              "id": "90b02076-c565-4fdb-a511-a874f2a0941a",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "number"
+            },
+            {
+              "id": "e3430776-8de0-4032-ad31-02ef8aba6eb1",
+              "name": "first_name",
+              "value": "={{ $json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "81a24971-cbde-43ec-a642-dd75a3c2357b",
+              "name": "message_text",
+              "value": "={{ $json.message_text }}",
+              "type": "string"
+            },
+            {
+              "id": "5d76e7c5-2f85-44d6-96f4-49e5dab967e3",
+              "name": "message_date",
+              "value": "={{ $json.message_date }}",
+              "type": "number"
+            },
+            {
+              "id": "c69d45d5-ef88-4321-a3de-148a39701fd6",
+              "name": "bot_id",
+              "value": "={{ $json.from_id }}",
+              "type": "number"
+            },
+            {
+              "id": "3d13a7d8-29ed-4431-b86a-61740768a077",
+              "name": "is_bot",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        592,
+        -528
+      ],
+      "id": "d836461a-32dd-490d-99d6-41d4e8efded9",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"chat_id\": 1,\n  \"text\": \"\",\n  \"reply_to_message_id\": 1,\n  \"is_bot\": false\n}"
+      },
+      "id": "8830f976-6dec-47bb-87c6-7171a034109c",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -976,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "amount": "={{  $json.error.substring(31) }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        592,
+        -288
+      ],
+      "id": "291a7b00-56a6-4d99-aa68-10aab7336bff",
+      "name": "Wait",
+      "webhookId": "6aa8c20c-f349-4959-996f-87ba7c1c841c"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e36941e8-6efa-403b-9483-98ef7368f7e2",
+              "leftValue": "={{ $json.is_bot }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -528,
+        -120
+      ],
+      "id": "88b7e62b-be80-477a-8829-c2ad335951cf",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "amount": "={{  $json.error.substring(31) }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        192
+      ],
+      "id": "9203882c-e57b-4d0d-be4f-3b04996f19f6",
+      "name": "Wait1",
+      "webhookId": "6aa8c20c-f349-4959-996f-87ba7c1c841c"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "Too Many Requests: retry after",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "e369bd3a-a109-4c8d-bf1e-8b147409426c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "retry after"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "08e1a4cc-f1cb-4c05-aa0b-7630e0f7ecdd",
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "Bad Request: message to be replied not found",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no reply"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -80,
+        72
+      ],
+      "id": "28f23706-d127-4d5b-baa0-65fd32830815",
+      "name": "Telegram Error Handling for Message"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "Too Many Requests: retry after",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "e369bd3a-a109-4c8d-bf1e-8b147409426c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "retry after"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "08e1a4cc-f1cb-4c05-aa0b-7630e0f7ecdd",
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "Bad Request: message to be replied not found",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no reply"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        368,
+        -336
+      ],
+      "id": "8be0c5e4-a1cb-41d9-a2a7-db53742c9022",
+      "name": "Telegram Error Handling for Reply"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send a text message without reply": {
+      "main": [
+        [
+          {
+            "node": "Craft chatbot message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Error Handling for Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message as reply": {
+      "main": [
+        [
+          {
+            "node": "Craft chatbot message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Error Handling for Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message ready for Telegram": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Craft chatbot message": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Message ready for Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send a text message without reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message without reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message as reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message as reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Error Handling for Message": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message without reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Error Handling for Reply": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "432414df-dd82-420e-a3e2-989f40945b42",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "qIAThsXbNgCvC8qv",
+  "tags": []
+}

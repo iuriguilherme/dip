@@ -1,0 +1,347 @@
+{
+  "name": "celiio_step4_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "976511f8-1c4f-411c-a79d-73b8f613303d",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "19b706d3-e786-4877-bfe8-447cd94e0b55",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "string"
+            },
+            {
+              "id": "97bbaa4b-fbef-441d-846f-7b17a80935db",
+              "name": "message_id",
+              "value": "={{ $json.message_id }}",
+              "type": "string"
+            },
+            {
+              "id": "5c227d2b-646f-4b6d-920f-67cc561fcd93",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "45830eaf-9cc4-4108-914d-b8ea9a192c3a",
+              "name": "bot_name",
+              "value": "={{ $json.bot_name }}",
+              "type": "string"
+            },
+            {
+              "id": "abdd7424-a487-45fc-84c1-7f282e71ff38",
+              "name": "is_bot",
+              "value": "={{ $json.is_bot }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        -1008
+      ],
+      "id": "579a7edc-c448-41d1-8b82-29d373a608b2",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"bot_name\": \"\",\n  \"bot_id\": 1,\n  \"id\": 1,\n  \"chat_id\": 1,\n  \"from_id\": 1,\n  \"message_id\": 1,\n  \"message_text\": \"\",\n  \"is_bot\": false\n}"
+      },
+      "id": "964fffa0-06c4-4844-8943-4a2ee22b0f14",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -848,
+        -1008
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "zaJYSMxxLgCXvdT7",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/zaJYSMxxLgCXvdT7",
+          "cachedResultName": "celiio_step6_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_id": "={{ $json.bot_id }}",
+            "id": "={{ $json.id }}",
+            "chat_id": "={{ $json.chat_id }}",
+            "from_id": "={{ $json.from_id }}",
+            "message_id": "={{ $json.message_id }}",
+            "bot_name": "={{ $json.bot_name }}",
+            "message_text": "={{ $json.message_text }}",
+            "is_bot": "={{ $json.is_bot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "bot_id",
+              "displayName": "bot_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "from_id",
+              "displayName": "from_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "message_id",
+              "displayName": "message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "message_text",
+              "displayName": "message_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "is_bot",
+              "displayName": "is_bot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        -1104
+      ],
+      "name": "Format Data",
+      "id": "f819ccc3-c206-44ef-b031-e43d905b5c6e"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -400,
+        -1008
+      ],
+      "id": "5e9be0a5-d656-4bde-b540-ef1f76d5b637",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "3O4ADwvNflWYWwwc",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/3O4ADwvNflWYWwwc",
+          "cachedResultName": "celiio_step5_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message_text": "={{ $json.message_text }}",
+            "chat_id": "={{ $json.chat_id }}",
+            "from_id": "={{ $json.from_id }}",
+            "bot_name": "={{ $json.bot_name }}"
+          },
+          "matchingColumns": [
+            "message_text",
+            "chat_id",
+            "from_id"
+          ],
+          "schema": [
+            {
+              "id": "message_text",
+              "displayName": "message_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "from_id",
+              "displayName": "from_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        -912
+      ],
+      "name": "Actually get reply from Agent",
+      "id": "260b2aeb-73df-43c5-b99d-7ad38f329f86"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Format Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Actually get reply from Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actually get reply from Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "92b7a7d9-c452-45b6-b74b-6d559cf962d2",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "JTSyBhvoVlYT0dER",
+  "tags": []
+}

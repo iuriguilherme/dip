@@ -1,0 +1,185 @@
+{
+  "name": "celiio_step1-lithos_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "nodeCredentialType": "telegramApi"
+      },
+      "type": "n8n-nodes-unsafe-extract-credentials.ExtractCredentials",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        -432
+      ],
+      "id": "0c8f5b06-943c-4510-b577-c787b1aa4873",
+      "name": "Lithos Credentials",
+      "credentials": {
+        "telegramApi": {
+          "id": "4gYEYYyYib1XSTfh",
+          "name": "Lithos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -832,
+        -528
+      ],
+      "id": "f3a55e32-1308-4f6c-a9a3-06779a4e61a5",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "79zHpN094Qxc7zFn",
+          "mode": "list",
+          "cachedResultName": "bot_ids",
+          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/79zHpN094Qxc7zFn"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "bot_name",
+              "keyValue": "={{ $json.bot_name }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1056,
+        -624
+      ],
+      "id": "d1e769b9-67c4-4625-b1de-6473c5b6c028",
+      "name": "Get bot data",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2531bde-f9ab-4e8a-bf8f-2a3ca5e04b2b",
+              "name": "bot_name",
+              "value": "={{ $json.bot_name }}",
+              "type": "string"
+            },
+            {
+              "id": "3cc9cfb4-4d5e-458f-8606-c80145ef1151",
+              "name": "bot_id",
+              "value": "={{ $json.bot_id }}",
+              "type": "string"
+            },
+            {
+              "id": "2464e572-4eba-4602-9229-b66160573e13",
+              "name": "accessToken",
+              "value": "={{ $json.accessToken }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -608,
+        -528
+      ],
+      "id": "1331899c-c3c1-4ee8-9c8e-6ef2cec72d0f",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "bot_name"
+            }
+          ]
+        }
+      },
+      "id": "ba32b58d-3209-4f5e-ac4c-1768313d0194",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1280,
+        -528
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Lithos Credentials": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get bot data": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Lithos Credentials",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get bot data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3fb21bf4-389e-49f6-9090-e0ce489843a3",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "xvtVObwS9BusEv41",
+  "tags": []
+}

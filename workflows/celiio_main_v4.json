@@ -1,0 +1,695 @@
+{
+  "name": "celiio_main_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1488,
+        -816
+      ],
+      "id": "66a373eb-922b-4a9e-9fe8-efbd53f111ef",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        -1200
+      ],
+      "id": "20920aa8-3ea2-4b47-b332-550beafd25b6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1488,
+        -1008
+      ],
+      "id": "7a41520c-43c0-42dd-b02c-66fa32ef4997",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": []
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        -1008
+      ],
+      "id": "a30fd878-1699-4ed6-9666-daf5d5c70152",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "uY0xf4pD5GiReA34",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/uY0xf4pD5GiReA34",
+          "cachedResultName": "cellio_step2_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "accessToken": "={{ $json.accessToken }}",
+            "bot_id": "={{ $json.bot_id }}",
+            "bot_name": "={{ $json.bot_name }}"
+          },
+          "matchingColumns": [
+            "message_message_id",
+            "message_from_id",
+            "message_chat_id",
+            "bot_id",
+            "message_from_first_name",
+            "message_text",
+            "message_date",
+            "update_id",
+            "message_chat_type"
+          ],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "bot_id",
+              "displayName": "bot_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "accessToken",
+              "displayName": "accessToken",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -816,
+        -1008
+      ],
+      "name": "Get updates from telegram and store on database",
+      "id": "496b6cde-8e29-4015-bab6-afdb1cc7f802"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "s8oz8ZRsaI6o3hu9",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/s8oz8ZRsaI6o3hu9",
+          "cachedResultName": "celiio_step3_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_name": "={{ $json.bot_name }}",
+            "bot_id": "={{ $json.bot_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "bot_id",
+              "displayName": "bot_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -592,
+        -1008
+      ],
+      "id": "b2252515-f1e1-40ab-ac98-24c9011279d7",
+      "name": "Get personalized messages from database"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "JTSyBhvoVlYT0dER",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/JTSyBhvoVlYT0dER",
+          "cachedResultName": "celiio_step4_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_id": "={{ $json.bot_id }}",
+            "id": "={{ $json.id }}",
+            "chat_id": "={{ $json.chat_id }}",
+            "from_id": "={{ $json.from_id }}",
+            "message_id": "={{ $json.message_id }}",
+            "bot_name": "={{ $json.bot_name }}",
+            "message_text": "={{ $json.message_text }}",
+            "is_bot": "={{ $json.is_bot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "bot_id",
+              "displayName": "bot_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "from_id",
+              "displayName": "from_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "message_id",
+              "displayName": "message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "message_text",
+              "displayName": "message_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "is_bot",
+              "displayName": "is_bot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -368,
+        -1008
+      ],
+      "name": "Get reply from Agent",
+      "id": "57f2bf00-9755-4447-8a5b-004f4004db6f"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Z9RXpKekrf5LS2b0",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Z9RXpKekrf5LS2b0",
+          "cachedResultName": "celiio_step7_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $json.chat_id }}",
+            "message_id": "={{ $json.message_id }}",
+            "id": "={{ $json.id }}",
+            "bot_name": "={{ $json.bot_name }}",
+            "output": "={{ $json.output }}",
+            "is_bot": "={{ $json.is_bot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "message_id",
+              "displayName": "message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "is_bot",
+              "displayName": "is_bot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        -1008
+      ],
+      "name": "Send message to Telegram and store on database",
+      "id": "051676b1-8d40-4853-895f-7538a201d07f"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        -1008
+      ],
+      "id": "ba24cf55-0f87-406b-8f57-0c9269678b01",
+      "name": "Start"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "eZhSZLeEFBx5P7c3",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/eZhSZLeEFBx5P7c3",
+          "cachedResultName": "celiio_step1_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_name": "Ceres"
+          },
+          "matchingColumns": [
+            "bot_name"
+          ],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1040,
+        -1200
+      ],
+      "name": "Gather Ceres Info",
+      "id": "d108e3c0-7cfb-45c5-a3c7-67a38bbe0374"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "eZhSZLeEFBx5P7c3",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/eZhSZLeEFBx5P7c3",
+          "cachedResultName": "celiio_step1_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_name": "Iodes"
+          },
+          "matchingColumns": [
+            "bot_name"
+          ],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1040,
+        -1008
+      ],
+      "name": "Gather Iodes Info",
+      "id": "09d26442-3ed4-469f-8b68-69f7ccfd5561"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "eZhSZLeEFBx5P7c3",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/eZhSZLeEFBx5P7c3",
+          "cachedResultName": "celiio_step1_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_name": "Lithos"
+          },
+          "matchingColumns": [
+            "bot_name"
+          ],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1040,
+        -816
+      ],
+      "name": "Gather Lithos Info",
+      "id": "da9655ee-932e-4f81-b5ef-1be2a167818d"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get updates from telegram and store on database": {
+      "main": [
+        [
+          {
+            "node": "Get personalized messages from database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get personalized messages from database": {
+      "main": [
+        [
+          {
+            "node": "Get reply from Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get reply from Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message to Telegram and store on database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message to Telegram and store on database": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Gather Ceres Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gather Iodes Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gather Lithos Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gather Ceres Info": {
+      "main": [
+        [
+          {
+            "node": "Get updates from telegram and store on database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gather Iodes Info": {
+      "main": [
+        [
+          {
+            "node": "Get updates from telegram and store on database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gather Lithos Info": {
+      "main": [
+        [
+          {
+            "node": "Get updates from telegram and store on database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fec0b59b-2e27-4d67-be92-51330ae84bef",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "HVSVR6woBFoUFoU6",
+  "tags": []
+}

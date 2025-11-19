@@ -1,0 +1,483 @@
+{
+  "name": "celiio_step8_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ad08431f-7a86-4ef8-af64-b768458aef98",
+              "name": "message_id",
+              "value": "={{ $json.message_id }}",
+              "type": "number"
+            },
+            {
+              "id": "6bc63f36-42b4-4667-b1d3-5674d154483f",
+              "name": "from_id",
+              "value": "={{ $json.from_id }}",
+              "type": "number"
+            },
+            {
+              "id": "c89c6f6e-09dd-4ecc-b47a-9c5fe2c700d0",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "number"
+            },
+            {
+              "id": "a68ac0e7-9322-42ee-841f-92ea024255ad",
+              "name": "first_name",
+              "value": "={{ $json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "fe175f10-3090-489f-8d7d-d49516a745f6",
+              "name": "message_text",
+              "value": "={{ $json.message_text }}",
+              "type": "string"
+            },
+            {
+              "id": "cd234b05-f34a-4fc1-8f98-0920892022b7",
+              "name": "message_date",
+              "value": "={{ $json.message_date }}",
+              "type": "number"
+            },
+            {
+              "id": "25cc7c95-be6e-46b6-98e6-b9fa79bc7b45",
+              "name": "bot_id",
+              "value": "={{ $json.bot_id }}",
+              "type": "number"
+            },
+            {
+              "id": "c8fc7d42-3ffe-4204-80b2-a65d74e53fd8",
+              "name": "is_bot",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1488,
+        3280
+      ],
+      "id": "c2e5599f-e511-4188-8b13-e495e4fce04e",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"chat_id\": 1,\n  \"text\": \"\",\n  \"reply_to_message_id\": 1,\n  \"bot_name\": \"\",\n  \"is_bot\": false\n}"
+      },
+      "id": "1e0d5080-92a6-4478-8dcb-27575f56ab7a",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -2160,
+        3280
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Ceres",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a3f43c9a-2a63-4f60-8dd3-35f08c1c4cde"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ceres"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "784016e7-55fb-495e-af81-17ffbf386e6c",
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Iodes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Iodes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dcc829e5-039c-4ea1-ab78-4f1882c824ad",
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Lithos",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Lithos"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -1936,
+        3264
+      ],
+      "id": "dddbbe4b-4c40-4946-9ac9-9d22438d03fa",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GabUpWNg5XPLPwKQ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GabUpWNg5XPLPwKQ",
+          "cachedResultName": "celiio_step8-ceres_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $json.chat_id }}",
+            "reply_to_message_id": "={{ $json.reply_to_message_id }}",
+            "text": "={{ $json.text }}",
+            "is_bot": "={{ $json.is_bot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "reply_to_message_id",
+              "displayName": "reply_to_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "is_bot",
+              "displayName": "is_bot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1712,
+        3088
+      ],
+      "name": "Ceres",
+      "id": "9778e558-f7f2-4cec-9cbf-389022ff820b"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "qIAThsXbNgCvC8qv",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/qIAThsXbNgCvC8qv",
+          "cachedResultName": "celiio_step8-iodes_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $json.chat_id }}",
+            "reply_to_message_id": "={{ $json.reply_to_message_id }}",
+            "text": "={{ $json.text }}",
+            "is_bot": "={{ $json.is_bot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "reply_to_message_id",
+              "displayName": "reply_to_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "is_bot",
+              "displayName": "is_bot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1712,
+        3280
+      ],
+      "name": "Iodes",
+      "id": "7abc1096-709c-4726-8b7a-7e6b7e2c77de"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "jnoXzrx0v8ZfHWZL",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/jnoXzrx0v8ZfHWZL",
+          "cachedResultName": "celiio_step8-lithos_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $json.chat_id }}",
+            "reply_to_message_id": "={{ $json.reply_to_message_id }}",
+            "text": "={{ $json.text }}",
+            "is_bot": "={{ $json.is_bot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "reply_to_message_id",
+              "displayName": "reply_to_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "is_bot",
+              "displayName": "is_bot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1712,
+        3472
+      ],
+      "name": "Lithos",
+      "id": "8b82d4ba-3e1a-4df4-a6c0-38e9944db9eb"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Ceres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Iodes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lithos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ceres": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iodes": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lithos": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f8977b2c-6d27-463f-920d-93036b07efbc",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "19I9RRw4aWDOucgn",
+  "tags": []
+}

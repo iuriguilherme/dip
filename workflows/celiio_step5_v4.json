@@ -1,0 +1,539 @@
+{
+  "name": "celiio_step5_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message_text"
+            },
+            {
+              "name": "chat_id",
+              "type": "number"
+            },
+            {
+              "name": "from_id",
+              "type": "number"
+            },
+            {
+              "name": "bot_name"
+            }
+          ]
+        }
+      },
+      "id": "325ec634-96bb-4762-b356-0e4ba9c90618",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -2416,
+        3504
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Ceres",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a3f43c9a-2a63-4f60-8dd3-35f08c1c4cde"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ceres"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "784016e7-55fb-495e-af81-17ffbf386e6c",
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Iodes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Iodes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dcc829e5-039c-4ea1-ab78-4f1882c824ad",
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Lithos",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Lithos"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -2192,
+        3488
+      ],
+      "id": "f9558945-1003-44b8-bb8c-82eaa3cfa217",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3ddb08a0-f7d3-4c91-a003-9f92022846b7",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1520,
+        3504
+      ],
+      "id": "ea6ab9be-d888-4e66-a48a-d04d5c96bd66",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "DFEpzbO0Z1ormkDe",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/DFEpzbO0Z1ormkDe",
+          "cachedResultName": "celiio_step5-ceres_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $json.chat_id }}",
+            "from_id": "={{ $json.from_id }}",
+            "message_text": "={{ $json.message_text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message_text",
+              "displayName": "message_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "from_id",
+              "displayName": "from_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1968,
+        3312
+      ],
+      "name": "Ceres",
+      "id": "595b0241-bf1d-4cac-bbcc-bb13326884f7"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "s6twfNayu6zI39LZ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/s6twfNayu6zI39LZ",
+          "cachedResultName": "celiio_step6_iodes_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message_text": "={{ $json.message_text }}",
+            "chat_id": "={{ $json.chat_id }}",
+            "from_id": "={{ $json.from_id }}"
+          },
+          "matchingColumns": [
+            "message_text",
+            "chat_id",
+            "from_id"
+          ],
+          "schema": [
+            {
+              "id": "message_text",
+              "displayName": "message_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "from_id",
+              "displayName": "from_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1968,
+        3504
+      ],
+      "name": "Iodes",
+      "id": "7979ff13-e562-4904-a0c0-e42df0fba4f9"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "XCjaHdmEzsLfd7mQ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/XCjaHdmEzsLfd7mQ",
+          "cachedResultName": "celiio_step6_lithos_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $json.chat_id }}",
+            "from_id": "={{ $json.from_id }}",
+            "message_text": "={{ $json.message_text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message_text",
+              "displayName": "message_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "from_id",
+              "displayName": "from_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1968,
+        3696
+      ],
+      "name": "Lithos",
+      "id": "b5facb57-22a6-404c-b5cc-4b7ca9571f8d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0a092c2e-241d-4d39-bdae-5b32c3da87ab",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1744,
+        3600
+      ],
+      "id": "8df0f117-421c-4c17-93b0-175555b28dc5",
+      "name": "Assert output"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Agent did not made a reply"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        3696
+      ],
+      "id": "22c0251f-955b-4442-8429-e62787171502",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "76c4a084-b08e-4e4d-9bb9-b7218f051202",
+              "name": "output",
+              "value": "do not answer this",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1968,
+        3888
+      ],
+      "id": "c960486b-aa1c-42b8-a231-5324225272f1",
+      "name": "Fake Output"
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "message_text": "vai te catar",
+          "chat_id": -5020193508,
+          "from_id": 184636438,
+          "bot_name": "Ceres"
+        },
+        "binary": {}
+      }
+    ]
+  },
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Ceres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Iodes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lithos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ceres": {
+      "main": [
+        [
+          {
+            "node": "Assert output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iodes": {
+      "main": [
+        [
+          {
+            "node": "Assert output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lithos": {
+      "main": [
+        [
+          {
+            "node": "Assert output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assert output": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fake Output": {
+      "main": [
+        [
+          {
+            "node": "Assert output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "88ee2b96-d4ee-471e-9eb3-ffaddbe8c4d3",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "3O4ADwvNflWYWwwc",
+  "tags": []
+}

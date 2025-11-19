@@ -1,0 +1,358 @@
+{
+  "name": "celiio_step6_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "telegram_messages",
+          "mode": "list",
+          "cachedResultName": "telegram_messages"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "bot_id",
+              "value": "={{ $json.bot_id }}"
+            },
+            {
+              "column": "chat_id",
+              "value": "={{ $json.chat_id }}"
+            },
+            {
+              "column": "from_id",
+              "value": "={{ $json.from_id }}"
+            },
+            {
+              "column": "message_text",
+              "value": "={{ $json.message_text }}"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "message_id"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        464,
+        -1320
+      ],
+      "id": "e2442c12-0e1d-46cb-950b-987cae380502",
+      "name": "Select rows from a table",
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "Y1viSmm7SddnQ2ul",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "98efb3f6-4add-4707-92a0-03e5ca66f482",
+              "leftValue": "={{ $item(\"0\").$node[\"Merge\"].json[\"message_id\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        -1248
+      ],
+      "id": "22b5c5bd-de04-4fe5-8448-2ed010e647f3",
+      "name": "Assert Message Id"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "61a144d8-03a2-4593-a868-7682b5928913",
+              "name": "bot_id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"bot_id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "c5835870-6965-4514-a40b-251de884172e",
+              "name": "id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "ed194a75-ecea-402c-8b64-fab131759e07",
+              "name": "chat_id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"chat_id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "030b121d-9f6b-456f-894b-f2e0aeb4cc01",
+              "name": "from_id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"from_id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "6e6634c7-fb71-4d96-89af-38a8bbd6737a",
+              "name": "message_id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"message_id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "7771d8c1-ba2f-4cf6-a15d-aa50eede278b",
+              "name": "message_text",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"message_text\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "5f3c1630-005e-4a18-b780-c1c2bc13b6e1",
+              "name": "bot_name",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"bot_name\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "e727cced-ace9-4dce-8bb9-008d7a73f47e",
+              "name": "is_bot",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"is_bot\"] }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        -1152
+      ],
+      "id": "e3338143-c2b0-4c2b-a47b-ae240a5cfbbe",
+      "name": "Message ID not found"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1813f2d-c21f-4fb0-8f0c-a8d79175f0af",
+              "name": "message_id",
+              "value": "={{ $json[\"message_id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "8ca937c5-462c-4b78-aa62-94262eda39e5",
+              "name": "bot_id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"bot_id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "34761aaf-4e9b-4ff3-bcd0-9eb64ba2a34c",
+              "name": "id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "4ffdd802-979b-4509-a2f8-8af8ca877f4e",
+              "name": "chat_id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"chat_id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "a53549e6-a710-4c16-b4d1-8f5945660b62",
+              "name": "from_id",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"from_id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "d1c69ada-7f7f-4399-ad9f-2851f6b50295",
+              "name": "message_text",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"message_text\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "ff90e23c-7eff-4101-939c-ec0fa6134c26",
+              "name": "bot_name",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"bot_name\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "ab017418-e527-4ecf-8675-7f76339e9af5",
+              "name": "is_bot",
+              "value": "={{ $item(\"1\").$node[\"Assert Message Id\"].json[\"is_bot\"] }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        -1344
+      ],
+      "id": "89f7eeb2-e034-44bf-aa23-0356b08f6f7d",
+      "name": "Message ID found"
+    },
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{\n  \"bot_name\": \"\",\n  \"bot_id\": 1,\n  \"id\": 1,\n  \"chat_id\": 1,\n  \"from_id\": 1,\n  \"message_id\": 1,\n  \"message_text\": \"\",\n  \"is_bot\": false\n}"
+      },
+      "id": "5fdb951a-7542-404f-9623-c2c80083b900",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        240,
+        -1248
+      ]
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        -1248
+      ],
+      "id": "f6f2611c-f083-4d87-84e7-05f8a95ca6c9",
+      "name": "Return"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        688,
+        -1248
+      ],
+      "id": "7aa701bf-1c52-4fa0-8280-0129fea247b4",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Select rows from a table": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assert Message Id": {
+      "main": [
+        [
+          {
+            "node": "Message ID found",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message ID not found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message ID not found": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message ID found": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Assert Message Id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "936e06b0-8090-445c-94b4-59240d69c6c9",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "zaJYSMxxLgCXvdT7",
+  "tags": []
+}

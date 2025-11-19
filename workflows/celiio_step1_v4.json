@@ -1,0 +1,341 @@
+{
+  "name": "celiio_step1_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "bot_name"
+            }
+          ]
+        }
+      },
+      "id": "c1448b7b-c40a-4c60-8904-daadc1d10c19",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -2096,
+        -944
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Ceres",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a3f43c9a-2a63-4f60-8dd3-35f08c1c4cde"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ceres"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "784016e7-55fb-495e-af81-17ffbf386e6c",
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Iodes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Iodes"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dcc829e5-039c-4ea1-ab78-4f1882c824ad",
+                    "leftValue": "={{ $json.bot_name }}",
+                    "rightValue": "Lithos",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Lithos"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -1872,
+        -960
+      ],
+      "id": "b654ad93-1fd9-4291-9526-ea0cdb994c59",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "kygUAaevLhdYms8k",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/kygUAaevLhdYms8k",
+          "cachedResultName": "celiio_step1-ceres_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_name": "={{ $json.bot_name }}"
+          },
+          "matchingColumns": [
+            "bot_name"
+          ],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -1136
+      ],
+      "name": "Ceres",
+      "id": "89c87edf-789f-4103-9081-e3ea4a6a4608"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "MPxJIkQeJ0IHleh5",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/MPxJIkQeJ0IHleh5",
+          "cachedResultName": "celiio_step1-iodes_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_name": "={{ $json.bot_name }}"
+          },
+          "matchingColumns": [
+            "bot_name"
+          ],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -944
+      ],
+      "name": "Iodes",
+      "id": "cefa183d-57e6-436f-bdf4-b574175f7a5f"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "xvtVObwS9BusEv41",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/xvtVObwS9BusEv41",
+          "cachedResultName": "celiio_step1-lithos_v3"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "bot_name": "={{ $json.bot_name }}"
+          },
+          "matchingColumns": [
+            "bot_name"
+          ],
+          "schema": [
+            {
+              "id": "bot_name",
+              "displayName": "bot_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1648,
+        -752
+      ],
+      "name": "Lithos",
+      "id": "f008a851-3081-4929-a1bb-49794e15a81f"
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1424,
+        -944
+      ],
+      "id": "8aa440ee-5a9b-42bb-af65-97466382aa15",
+      "name": "Return"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Ceres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Iodes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lithos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ceres": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iodes": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lithos": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b605a372-7286-4dd3-a34a-38cb6e67f280",
+  "meta": {
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "eZhSZLeEFBx5P7c3",
+  "tags": []
+}

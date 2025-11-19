@@ -1,0 +1,346 @@
+{
+  "name": "celiio_step5-ceres_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "deepseek-r1:1.5b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1712,
+        3504
+      ],
+      "id": "e571fbf8-e444-427d-bd73-e951126ad5e7",
+      "name": "Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "saUqAMyGND8VCSJv",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1:1.5b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1584,
+        3504
+      ],
+      "id": "0a986eac-3a01-4729-b4a9-36651010799e",
+      "name": "Ollama Fallback",
+      "credentials": {
+        "ollamaApi": {
+          "id": "z5iLUPNrKsoOv412",
+          "name": "Ollama Fallback"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Start').item.json.chat_id + \"_\" + $('Start').item.json.from_id }}",
+        "contextWindowLength": 300
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1456,
+        3504
+      ],
+      "id": "8fa84fb5-3e0a-41a5-8cc8-009f30d6d674",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please respond to the following message with warmth and empathy:\n\n{{ $json.message_text }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are Ceres, a friendly and empathetic AI assistant. Your communication style is warm, conversational, and casual. You care deeply about the user's feelings and emotional well-being. You use approachable language, show genuine understanding, and provide supportive responses. Your goal is to make users feel heard, comfortable, and supported in every interaction. Previous conversation messages have been retrieved from the database using the user identifier \"{{ $json.chat_id }}_{{ $json.from_id }}\" - use this conversation history to remember previous discussions and show that you care about the ongoing relationship."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -1656,
+        3280
+      ],
+      "id": "ee3024b0-6b36-461d-9b5a-70efa8fede7e",
+      "name": "Ceres Agent",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1afaeca-0f5d-4cd4-a917-21785e88a905",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1248,
+        3136
+      ],
+      "id": "71b16b21-414c-48f3-a4b9-cb0f19554dd8",
+      "name": "Return"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message_text"
+            },
+            {
+              "name": "chat_id",
+              "type": "number"
+            },
+            {
+              "name": "from_id",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "id": "c133fef0-41e0-47e1-9dde-591d4823c506",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1936,
+        3280
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error on agent reply generation"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        3352
+      ],
+      "id": "0248cfbe-2bf5-4434-93dd-ba0511b35157",
+      "name": "Stop and Error",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Get chat_id').item.json.chat_id }}",
+        "text": "=Contexto muito grande pros dois modelos. Foi na mensagem:\n\n```\n{{ $('Ceres Agent').item.json }}\n```",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": true,
+          "parse_mode": "MarkdownV2"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        3352
+      ],
+      "id": "5b13148b-3182-4a61-a192-fb224f625d49",
+      "name": "Log Error on Telegram",
+      "webhookId": "d4924726-5720-441a-a509-fc602d4983f5",
+      "credentials": {
+        "telegramApi": {
+          "id": "Zs6IO0L7GKnNCG4s",
+          "name": "Ceres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "499417a4-316b-4c93-a57c-a11ec77f31e4",
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1024,
+        3424
+      ],
+      "id": "1e1213f4-86a8-4e30-8878-e454d5af21dc",
+      "name": "Get chat_id"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "S7SVuJd21M3G7fPB",
+          "mode": "list",
+          "cachedResultName": "chat_ids",
+          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/S7SVuJd21M3G7fPB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "title",
+              "keyValue": "debug"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1248,
+        3424
+      ],
+      "id": "6465e00d-13e0-4a6c-9714-cc17c2245114",
+      "name": "Get debug chat_id"
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "message_text": "tenta responder essa agora",
+          "chat_id": -5020193508,
+          "from_id": 184636438
+        },
+        "binary": {}
+      }
+    ]
+  },
+  "connections": {
+    "Ollama": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ceres Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Fallback": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ceres Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Ceres Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ceres Agent": {
+      "main": [
+        [
+          {
+            "node": "Return",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get debug chat_id",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Error on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Ceres Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error on Telegram": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get chat_id": {
+      "main": [
+        [
+          {
+            "node": "Log Error on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get debug chat_id": {
+      "main": [
+        [
+          {
+            "node": "Get chat_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "73300e88-2508-446b-afa0-d614b116f633",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
+  },
+  "id": "DFEpzbO0Z1ormkDe",
+  "tags": []
+}
