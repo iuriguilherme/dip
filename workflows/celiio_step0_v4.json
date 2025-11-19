@@ -7,7 +7,7 @@
       "typeVersion": 1,
       "position": [
         -672,
-        -160
+        -272
       ],
       "id": "1621b30c-bd08-4529-bf7f-a37dd7b61d10",
       "name": "When clicking ‘Execute workflow’"
@@ -23,7 +23,7 @@
       "typeVersion": 4.3,
       "position": [
         -224,
-        -64
+        -80
       ],
       "id": "9259c7e1-4096-4640-b9ad-58c39ffafe38",
       "name": "Ceres Request",
@@ -38,7 +38,7 @@
       "typeVersion": 1,
       "position": [
         -448,
-        -64
+        -80
       ],
       "id": "40362167-2889-4986-8394-541a2e5da280",
       "name": "Ceres Credentials",
@@ -60,7 +60,7 @@
       "typeVersion": 4.3,
       "position": [
         -224,
-        -256
+        -272
       ],
       "id": "ed64dc49-281d-4e28-96d7-6abeb6e21831",
       "name": "Lithos Request",
@@ -75,7 +75,7 @@
       "typeVersion": 1,
       "position": [
         -448,
-        -256
+        -272
       ],
       "id": "1120d1b2-e393-4e08-a1d2-de376fa598b8",
       "name": "Lithos Credentials",
@@ -97,7 +97,7 @@
       "typeVersion": 4.3,
       "position": [
         -224,
-        128
+        112
       ],
       "id": "77eddb6c-5332-4177-8ed8-e2665600e3b2",
       "name": "Iodes Request",
@@ -111,7 +111,7 @@
       "typeVersion": 1,
       "position": [
         -448,
-        128
+        112
       ],
       "id": "29e9d366-8613-4dba-8a73-18574dfbb20a",
       "name": "Iodes Credentials",
@@ -182,7 +182,7 @@
       "typeVersion": 1,
       "position": [
         224,
-        -448
+        -464
       ],
       "id": "d781c619-383a-4165-bf19-24bf3199942a",
       "name": "Populate chat_ids"
@@ -196,7 +196,7 @@
       "typeVersion": 1,
       "position": [
         0,
-        -448
+        -464
       ],
       "id": "90c5c03d-df6b-49f5-a104-a3bb9be82b7f",
       "name": "Split Out"
@@ -210,7 +210,7 @@
       "typeVersion": 1.1,
       "position": [
         -224,
-        -448
+        -464
       ],
       "id": "0537b4cb-6ff9-47ad-85f4-2a12ad6399b5",
       "name": "Extract from File"
@@ -226,7 +226,7 @@
       "typeVersion": 1,
       "position": [
         -448,
-        -448
+        -464
       ],
       "id": "046b57df-f69a-4383-a450-c3a6c2b065eb",
       "name": "Read/Write Files from Disk"
@@ -244,7 +244,7 @@
         "filters": {
           "conditions": [
             {
-              "keyName": "first_name",
+              "keyName": "bot_name",
               "keyValue": "={{ $json.result.first_name }}"
             }
           ]
@@ -252,24 +252,14 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "first_name": "={{ $json.result.first_name }}",
-            "bot_id": "={{ $json.result.id }}"
+            "bot_id": "={{ $json.result.id }}",
+            "bot_name": "={{ $json.result.first_name }}"
           },
           "matchingColumns": [],
           "schema": [
             {
-              "id": "name",
-              "displayName": "name",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": true
-            },
-            {
-              "id": "first_name",
-              "displayName": "first_name",
+              "id": "bot_name",
+              "displayName": "bot_name",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -297,10 +287,62 @@
       "typeVersion": 1,
       "position": [
         0,
-        -64
+        -80
       ],
       "id": "03795355-e51e-4f36-8adf-efd6ac7e5cc7",
       "name": "Populate bot_ids"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "ReMtvsSX6VOF5eIO",
+          "mode": "list",
+          "cachedResultName": "meta",
+          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/ReMtvsSX6VOF5eIO"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "start_from",
+              "condition": "isEmpty"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "start_from": "={{ DateTime.now() }}"
+          },
+          "matchingColumns": [
+            "start_from"
+          ],
+          "schema": [
+            {
+              "id": "start_from",
+              "displayName": "start_from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -656
+      ],
+      "id": "08bef718-d678-4451-b0c4-67d4fac514f9",
+      "name": "Create starting date"
     }
   ],
   "pinData": {},
@@ -325,6 +367,11 @@
           },
           {
             "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create starting date",
             "type": "main",
             "index": 0
           }
@@ -435,7 +482,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b8665c1b-c34e-4f82-9ff4-42e2946fae82",
+  "versionId": "c3983a5c-e85e-44a1-8dd2-88d756e7e5cb",
   "meta": {
     "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
   },
