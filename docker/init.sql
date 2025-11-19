@@ -3,19 +3,20 @@
 -- Table for incoming Telegram updates
 CREATE TABLE IF NOT EXISTS telegram_messages (
     id SERIAL PRIMARY KEY,
-    -- unique_id BIGINT NOT NULL,
-    -- update_id BIGINT NOT NULL,
+    unique_id VARCHAR(255) NOT NULL,
     bot_id BIGINT NOT NULL,
-    message_id BIGINT NOT NULL,
-    from_id BIGINT NOT NULL,
-    first_name VARCHAR(255),
+    update_id BIGINT NOT NULL,
     chat_id BIGINT NOT NULL,
-    -- chat_type VARCHAR(50) NOT NULL,
+    from_id BIGINT NOT NULL,
+    message_id BIGINT NOT NULL,
+    chat_type VARCHAR(50) NOT NULL,
+    first_name VARCHAR(255),
     message_text TEXT NOT NULL,
-    message_date TIMESTAMP NOT NULL,
+    message_date BIGINT NOT NULL,
     replied BOOLEAN DEFAULT false,
+    is_bot BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- UNIQUE(unique_id)
+    UNIQUE(unique_id)
 );
 
 -- Table for agent responses
@@ -37,7 +38,9 @@ CREATE TABLE IF NOT EXISTS telegram_messages (
 
 -- Indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_telegram_messages_chat_id ON telegram_messages(chat_id);
+CREATE INDEX IF NOT EXISTS idx_telegram_messages_update_id ON telegram_messages(update_id);
 CREATE INDEX IF NOT EXISTS idx_telegram_messages_from_id ON telegram_messages(from_id);
+CREATE INDEX IF NOT EXISTS idx_telegram_messages_date ON telegram_messages(message_date);
 CREATE INDEX IF NOT EXISTS idx_telegram_messages_created_at ON telegram_messages(created_at);
 -- CREATE INDEX IF NOT EXISTS idx_agent_responses_agent_name ON agent_responses(agent_name);
 -- CREATE INDEX IF NOT EXISTS idx_agent_responses_created_at ON agent_responses(created_at);
