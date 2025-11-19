@@ -682,11 +682,15 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedPerExecution": 30,
+    "errorWorkflow": "dVW99SGwXJP8XWri"
   },
-  "versionId": "fec0b59b-2e27-4d67-be92-51330ae84bef",
+  "versionId": "fb45b2d2-722c-49bf-a791-bd3027b13956",
   "meta": {
     "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
   },
