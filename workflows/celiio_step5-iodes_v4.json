@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "model": "gemma3:4b",
+        "model": "llama3.2:1b",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
@@ -812,7 +812,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "247daf7a-d44b-41ed-a193-e78ab5e45574",
+  "versionId": "943189e3-670c-4f0c-a612-d307765c0f3a",
   "meta": {
     "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
   },
