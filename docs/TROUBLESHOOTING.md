@@ -77,7 +77,7 @@ docker-compose up -d
 # Verify tables exist
 docker-compose exec postgres psql -U n8n -d n8n -c "\dt"
 
-# Should show: telegram_updates, agent_responses, agent_memory
+# Should show: telegram_messages
 ```
 
 **D. Rebuild from Scratch**
@@ -142,15 +142,14 @@ curl https://api.openai.com/v1/models \
 - Check system prompt in "Assign to Agents" node
 - Ensure three distinct personalities defined
 
-**C. Clear and Rebuild Memory**
+**C. Clear Stored Messages (optional)**
 ```sql
 -- Connect to database
 docker-compose exec postgres psql -U n8n -d n8n
 
--- Clear all agent memory
-DELETE FROM agent_memory;
+-- Clear all stored messages
+DELETE FROM telegram_messages;
 
--- Send new messages to rebuild memory
 ```
 
 ---
@@ -163,16 +162,17 @@ DELETE FROM agent_memory;
 
 #### Solutions
 
-**A. Check Memory Storage**
+**A. Check Stored Messages**
 ```sql
 -- Connect to database
 docker-compose exec postgres psql -U n8n -d n8n
 
--- View agent memory
-SELECT agent_name, chat_id, message_role, 
-       LEFT(message_content, 50) as content,
-       expires_at
-FROM agent_memory
+-- View recent messages
+SELECT chat_id,
+       from_id,
+       LEFT(message_text, 80) AS preview,
+       to_timestamp(message_date) AS message_time
+FROM telegram_messages
 ORDER BY created_at DESC
 LIMIT 20;
 ```
@@ -312,9 +312,7 @@ docker-compose exec n8n env | grep OPENAI
 docker-compose exec postgres psql -U n8n -d n8n
 
 -- Describe tables
-\d telegram_updates
-\d agent_responses
-\d agent_memory
+\d telegram_messages
 ```
 
 **B. Verify SQL Queries**
@@ -359,14 +357,13 @@ ORDER BY pg_total_relation_size(relid) DESC;
 VACUUM ANALYZE;
 
 -- Clean old data
-DELETE FROM agent_memory WHERE expires_at < NOW() - INTERVAL '1 day';
-DELETE FROM telegram_updates WHERE created_at < NOW() - INTERVAL '30 days';
+DELETE FROM telegram_messages WHERE created_at < NOW() - INTERVAL '30 days';
 ```
 
 **B. Adjust Memory Settings**
 - Reduce memory retention period
 - Limit conversation history to 5 messages instead of 10
-- Increase expires_at interval
+- Adjust retrieval time range/limit in your workflow logic or SQL queries over `telegram_messages`
 
 **C. Use Lighter LLM Model**
 - Change from `gpt-4` to `gpt-3.5-turbo`
@@ -402,7 +399,7 @@ docker-compose logs -f postgres
 
 4. **Community Support**
 - n8n Community: https://community.n8n.io/
-- GitHub Issues: https://github.com/iuriguilherme/n8n9n10n/issues
+- GitHub Issues: https://github.com/iuriguilherme/dip/issues
 - Stack Overflow: Tag with `n8n`
 
 ## Useful Commands

@@ -313,3 +313,36 @@ This entry is appended to preserve the full history of AI-assisted edits. I will
   - Cleaner repository: removed intermediate/experimental workflow files
   - Better documentation: users now understand where their data is stored and how to manage it
 - **Postgres environment variables**: Confirmed alignment with official postgres Docker image documentation (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` are the standard variables required by the official image)
+
+### 2025-11-19  AI Append: Documentation overhaul for celiio modular system
+
+- **Session scope**: Complete documentation update to reflect current celiio modular workflow architecture with Ceres, Iodes, Lithos agents and new database schema.
+- **Files modified**:
+  - **`docs/QUICKSTART.md`**:
+    - Updated prerequisites: Local Ollama instead of OpenAI API keys required
+    - Agent names changed: Alpha/Beta/Gamma → Ceres 🌾/Iodes 💜/Lithos 🗿
+    - Updated workflow import instructions: Import `celiio_main_v4` first, then all 16 supporting workflows
+    - Modified setup process: Only activate main workflow (sub-workflows auto-trigger)
+    - Updated credential configuration: PostgreSQL + 3 Telegram + Ollama endpoint (`http://n8n_ollama:11434/v1`)
+    - Updated troubleshooting: Ollama container checks instead of OpenAI API
+    - Added Ollama model management commands
+  - **`README.md`**:
+    - Updated project overview: Described celiio modular system with 17 total workflows
+    - Updated architecture diagram: Shows celiio workflow pipeline (step0 → step1 → step3 → step5 → step6 → step7 → step8)
+    - Agent personality updates: Ceres (agricultural/nurturing), Iodes (mystical/intuitive), Lithos (grounded/stable)
+    - Updated setup instructions: Import main workflow first, activate only celiio_main_v4
+    - Container reference fixes: `ollama` → `n8n_ollama`, `n8n` → `n8n_server`
+    - Removed OpenAI API requirement from environment variables
+    - Updated usage section: Message processing through modular pipeline
+    - Updated acknowledgments: Removed OpenAI reference, added custom nodes mention
+- **Database schema alignment**:
+  - Updated all documentation to reference `telegram_messages` table (replaced `telegram_updates`, `agent_responses`, `agent_memory`)
+  - Updated SQL examples to use correct table schema from `docker/init.sql`
+  - Fixed path references: `init.sql` → `docker/init.sql`
+- **Key improvements**:
+  - Documentation now accurately reflects current celiio modular architecture
+  - Consistent agent naming across all documentation (Ceres, Iodes, Lithos)
+  - Clear distinction between main orchestrator and sub-workflows
+  - Accurate container names and service references
+  - Updated troubleshooting for local Ollama instead of external APIs
+  - Proper workflow import sequence and activation instructions

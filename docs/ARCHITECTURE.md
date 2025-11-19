@@ -22,9 +22,9 @@
 │  │     ↓                                                   │    │
 │  │  3. Filter Text Messages                               │    │
 │  │     ↓                                                   │    │
-│  │  4. Store in PostgreSQL ──→ [telegram_updates table]   │────┼──┐
+│  │  4. Store in PostgreSQL ──→ [telegram_messages table]  │────┼──┐
 │  │     ↓                                                   │    │  │
-│  │  5. Retrieve Agent Memory ←─ [agent_memory table]      │←───┼──┤
+│  │  5. Retrieve Message History ←─ [telegram_messages]     │←───┼──┤
 │  │     ↓                                                   │    │  │
 │  │  6. Assign to Agent (Hash-based routing)               │    │  │
 │  │     ↓                                                   │    │  │
@@ -38,11 +38,11 @@
 │  │     ↓                                                   │    │  │  │
 │  │  9. Extract Response                                    │    │  │  │
 │  │     ↓                                                   │    │  │  │
-│  │ 10. Store Response ──────→ [agent_responses table]     │────┼──┤  │
+│  │ 10. Store Response (optional)                          │────┼──┤  │
 │  │     ↓                                                   │    │  │  │
 │  │ 11. Send Telegram Reply                                │    │  │  │
 │  │     ↓                                                   │    │  │  │
-│  │ 12. Update Agent Memory ──→ [agent_memory table]       │────┼──┘  │
+│  │ 12. Mark as Replied ──→ [telegram_messages]            │────┼──┘  │
 │  │     ↓                                                   │    │     │
 │  │ 13. Mark as Sent                                        │    │     │
 │  └────────────────────────────────────────────────────────┘    │     │
@@ -53,16 +53,24 @@
 ┌──────────────────────────────────▼─────────────────────────────────────▼─┐
 │                         PostgreSQL Database                              │
 │                                                                           │
-│  ┌───────────────────┐  ┌──────────────────┐  ┌──────────────────┐     │
-│  │ telegram_updates  │  │ agent_responses  │  │  agent_memory    │     │
-│  ├───────────────────┤  ├──────────────────┤  ├──────────────────┤     │
-│  │ - update_id       │  │ - id             │  │ - id             │     │
-│  │ - bot_token       │  │ - agent_name     │  │ - agent_name     │     │
-│  │ - message_text    │  │ - response_text  │  │ - chat_id        │     │
-│  │ - chat_id         │  │ - llm_model      │  │ - message_role   │     │
-│  │ - user_id         │  │ - sent_success   │  │ - message_content│     │
-│  │ - raw_data        │  │ - tokens         │  │ - expires_at     │     │
-│  └───────────────────┘  └──────────────────┘  └──────────────────┘     │
+│  ┌───────────────────┐                                               │
+│  │ telegram_messages │                                               │
+│  ├───────────────────┤                                               │
+│  │ - id              │                                               │
+│  │ - unique_id       │                                               │
+│  │ - bot_id          │                                               │
+│  │ - update_id       │                                               │
+│  │ - chat_id         │                                               │
+│  │ - from_id         │                                               │
+│  │ - message_id      │                                               │
+│  │ - chat_type       │                                               │
+│  │ - first_name      │                                               │
+│  │ - message_text    │                                               │
+│  │ - message_date    │                                               │
+│  │ - replied         │                                               │
+│  │ - is_bot          │                                               │
+│  │ - created_at      │                                               │
+│  └───────────────────┘                                               │
 │                                                                           │
 └───────────────────────────────────────────────────────────────────────────┘
                                    │
@@ -84,9 +92,9 @@
 User → Telegram Bot → n8n Trigger → Store in DB
 ```
 
-### 2. Memory Retrieval
+### 2. Message Retrieval
 ```
-Chat ID → Query agent_memory → Get last 10 messages
+Chat ID → Query telegram_messages → Get last 10 messages
 ```
 
 ### 3. Agent Assignment

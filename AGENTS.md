@@ -141,20 +141,8 @@ Each agent maintains conversation memory for **1 hour** per chat. This memory in
 
 ### Database Schema
 
-Memory is stored in the `agent_memory` table:
-
-```sql
-CREATE TABLE agent_memory (
-    id SERIAL PRIMARY KEY,
-    agent_name VARCHAR(100) NOT NULL,
-    chat_id BIGINT NOT NULL,
-    message_role VARCHAR(20) NOT NULL,  -- 'user' or 'assistant'
-    message_content TEXT NOT NULL,
-    message_timestamp TIMESTAMP NOT NULL,
-    expires_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+Incoming Telegram messages are stored in the `telegram_messages` table.
+See `docker/init.sql` for the complete schema and indexes.
 
 ### Memory Retrieval
 
@@ -288,9 +276,8 @@ LIMIT 20  -- Adjust the number of messages
 
 **Check**:
 - Database connection is healthy
-- `agent_memory` table exists and is accessible
-- Memory expiration timestamps are set correctly
-- Query in "Get Agent Memory" node retrieves recent messages
+- `telegram_messages` table exists and contains recent messages
+- Workflow nodes correctly build and pass conversation context
 
 ### Poor Response Quality
 
@@ -356,4 +343,4 @@ See the [LICENSE](LICENSE) file for details.
 
 **Last Updated**: 2025-11-15
 **Version**: 1.0
-**Maintainer**: n8n9n10n project team
+**Maintainer**: dip project team

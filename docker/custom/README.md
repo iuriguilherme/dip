@@ -15,7 +15,7 @@ This n8n community node allows you to extract and decrypt credentials directly f
 
 1. Navigate to this directory:
    ```bash
-   cd ./custom
+   cd ./docker/custom
    ```
 
 2. Install dependencies:

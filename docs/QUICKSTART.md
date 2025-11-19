@@ -8,11 +8,11 @@ Before starting, you need:
 2. **Three Telegram Bot Tokens**:
    - Open Telegram and search for [@BotFather](https://t.me/botfather)
    - Send `/newbot` command three times to create three bots
+   - Name them Ceres, Iodes, and Lithos (or your preferred names)
    - Save the bot tokens provided by BotFather
-3. **OpenAI API Key**:
-   - Sign up at [OpenAI](https://platform.openai.com/)
-   - Navigate to [API Keys](https://platform.openai.com/api-keys)
-   - Create a new API key and save it
+3. **Local LLM via Ollama** (included in Docker setup)
+   - No external API keys needed for local models
+   - GPU acceleration optional but recommended
 
 ## Setup (5 minutes)
 
@@ -20,8 +20,8 @@ Before starting, you need:
 
 ```bash
 # Clone the repository
-git clone https://github.com/iuriguilherme/n8n9n10n.git
-cd n8n9n10n
+git clone https://github.com/iuriguilherme/dip.git
+cd dip
 
 # Copy environment template
 cp .env.example .env
@@ -29,16 +29,13 @@ cp .env.example .env
 # Edit `./.env` with your credentials and secrets
 nano .env  # or use your preferred editor
 
-The `.env.example` includes all variables used by the compose setup (Postgres, n8n, Telegram tokens and OpenAI). At minimum update the Telegram tokens and OpenAI key, and consider changing the basic auth and DB passwords for production:
+The `.env.example` includes all variables used by the compose setup. At minimum update the Telegram bot tokens:
 
 ```env
 # Telegram bot tokens (get these from @BotFather)
-TELEGRAM_BOT_TOKEN_1=your_first_bot_token_here
-TELEGRAM_BOT_TOKEN_2=your_second_bot_token_here
-TELEGRAM_BOT_TOKEN_3=your_third_bot_token_here
-
-# OpenAI API key
-OPENAI_API_KEY=your_openai_api_key_here
+TELEGRAM_BOT_TOKEN_1=your_ceres_bot_token_here
+TELEGRAM_BOT_TOKEN_2=your_iodes_bot_token_here
+TELEGRAM_BOT_TOKEN_3=your_lithos_bot_token_here
 
 # Optional: change n8n basic auth defaults
 N8N_BASIC_AUTH_USER=admin
@@ -48,14 +45,7 @@ N8N_BASIC_AUTH_PASSWORD=admin
 POSTGRES_PASSWORD=n8n
 ```
 
-You can also choose an alternative LLM provider (for example `gemini` or `deepseek`) by setting `LLM_PROVIDER` and the provider-specific API keys in your `.env`. The `.env.example` contains placeholders for:
-
-- `LLM_PROVIDER` (one of: `openai`, `gemini`, `deepseek`)
-- `LLM_MODEL` (model name for the provider)
-- `GEMINI_API_KEY`, `GEMINI_API_BASE`
-- `DEEPSEEK_API_KEY`, `DEEPSEEK_API_BASE`
-
-Make sure to update the workflow or n8n credentials to use the corresponding provider and API key if you change `LLM_PROVIDER`.
+**Note**: This system uses local Ollama for LLM processing, so no external API keys are required.
 
 Automatic workflow import
 -------------------------
@@ -80,11 +70,18 @@ docker-compose up -d
 docker-compose ps
 ```
 
+This will start:
+- PostgreSQL database (port 5432)
+- n8n server (port 5678)
+- Ollama (port 11434) — local LLM server
+- Ollama fallback (port 11435) — optional secondary Ollama instance
+
 You should see both `n8n_server` and `n8n_postgres` running.
 
 **Data Persistence**: Your data is automatically stored in `./instance/` directory:
 - `./instance/postgres_data/` - Database files
 - `./instance/n8n_data/` - n8n configuration
+- `./instance/ollama/` - ollama keys and models
 
 This folder is gitignored, keeping your local data separate from the repository.
 
@@ -106,50 +103,67 @@ This folder is gitignored, keeping your local data separate from the repository.
      - Port: `5432`
    - Click **Save**
 
-4. **Add OpenAI Credentials:**
+4. **Add Ollama Credentials:**
    - Go to **Credentials** → **Add Credential**
-   - Select **OpenAI**
-   - Enter your API key from `.env`
+   - Select **OpenAI** (compatible with Ollama)
+   - API Base URL: `http://n8n_ollama:11434/v1`
+   - API Key: any value (not used by Ollama)
    - Click **Save**
 
 5. **Add Telegram Credentials (3 times):**
    - Go to **Credentials** → **Add Credential**
    - Select **Telegram**
-   - Enter one of your bot tokens
+   - Name: "Ceres" and enter your first bot token
    - Click **Save**
-   - Repeat for the other two bots
+   - Repeat for "Iodes" and "Lithos" with their respective tokens
 
-### Step 4: Import Workflow
+### Step 4: Import Workflows
 
+**Import the main workflow first:**
 1. Click **Workflows** in the sidebar
-2. Click **Import from File**
-3. Select `workflows/telegram-multi-agent-bot.json`
-4. The workflow will open in the editor
+2. Click **Import from File** 
+3. Select `workflows/celiio_main_v4.json`
+4. Click **Save**
+
+**Import all supporting workflows:**
+5. Repeat import process for each file in `workflows/` folder:
+   - `celiio_step0_v4.json` - Bot initialization
+   - `celiio_step1_v4.json` + agent variants - Telegram updates
+   - `celiio_step3_v4.json` - Message processing  
+   - `celiio_step5_v4.json` + agent variants - LLM responses
+   - `celiio_step6_v4.json` - Message filtering
+   - `celiio_step7_v4.json` - Database storage
+   - `celiio_step8_v4.json` + agent variants - Telegram replies
+
+**Note**: Import all workflows before configuring credentials.
 
 ### Step 5: Connect Credentials
 
-For each node in the workflow that requires credentials:
+**Configure credentials across all imported workflows:**
 
-1. **Telegram Bot 1/2/3 Trigger** nodes:
-   - Click the node
-   - Under "Credential to connect with", select the corresponding Telegram credential
-   
-2. **Postgres** nodes (5 total):
-   - Click each node
+1. **PostgreSQL nodes** (found in multiple workflows):
+   - Click each Postgres node
    - Select the PostgreSQL credential you created
 
-3. **OpenAI** node:
-   - Click the node
-   - Select the OpenAI credential
+2. **Telegram credentials** (agent-specific):
+   - In step1 variants: Match Ceres/Iodes/Lithos credentials to respective workflows
+   - In step8 variants: Match agent credentials for sending replies
+   - In step5 variants: Match agent credentials for error logging
 
-4. **Telegram** node (Send Telegram Reply):
-   - Click the node
-   - Select any of the three Telegram credentials
+3. **Ollama LLM nodes** (found in step5 workflows):
+   - API Base URL: `http://n8n_ollama:11434/v1`
+   - Model: `llama3.2` (or your preferred model)
+   - API Key: any value (not used by Ollama)
 
-### Step 6: Activate Workflow
+**Note**: Each agent (Ceres, Iodes, Lithos) has dedicated workflow variants with their specific credentials.
 
-1. Click the **Inactive** toggle at the top to change it to **Active**
-2. The workflow is now running!
+### Step 6: Activate Main Workflow
+
+1. Open `celiio_main_v4` workflow
+2. Click the **Inactive** toggle at the top to change it to **Active**
+3. The main workflow will run every minute and coordinate all sub-workflows
+
+**Note**: Only activate the main workflow. Sub-workflows are triggered automatically.
 
 ## Testing
 
@@ -160,11 +174,13 @@ For each node in the workflow that requires credentials:
 
 ## Agent Personalities
 
-Your message will be answered by one of these agents (assignment is consistent per chat):
+Your message will be answered by one of these agents (assignment is based on bot interaction):
 
-- **Agent Alpha** 🎯: Professional, analytical, clear and concise
-- **Agent Beta** 💙: Friendly, warm, conversational and supportive
-- **Agent Gamma** 🎨: Creative, imaginative, uses metaphors and wordplay
+- **Ceres** 🌾: Agricultural and growth-focused, nurturing responses
+- **Iodes** 💜: Violet/purple themed, mystical and intuitive responses  
+- **Lithos** 🗿: Stone-themed, solid and grounded responses
+
+**Note**: Each agent has its own Telegram bot and responds with its unique personality as configured in the `celiio_step5` workflow variants.
 
 ## Troubleshooting
 
@@ -185,20 +201,27 @@ docker-compose ps postgres
 docker-compose logs -f postgres
 ```
 
-**OpenAI API error?**
-- Verify your API key in n8n credentials
-- Check your OpenAI account has credits
+**Ollama/LLM error?**
+- Ensure `n8n_ollama` container is running: `docker-compose ps`
+- Check if model is available: `docker exec -it n8n_ollama ollama list`
+- Pull missing model: `docker exec -it n8n_ollama ollama pull llama3.2`
 - Review n8n execution logs for error details
 
 ## Next Steps
 
-- Customize agent personalities in the workflow's "Assign to Agents" node
-- Adjust memory duration in "Update Agent Memory" node
-- Change LLM model in "LLM Generate Response" node
+- Customize agent personalities in the `celiio_step5` workflow variants
+- Adjust message processing logic in `celiio_step3_v4` workflow
+- Change Ollama models in the step5 agent workflows
 - View conversation history in PostgreSQL:
   ```bash
   docker-compose exec postgres psql -U n8n -d n8n
-  SELECT * FROM agent_memory ORDER BY created_at DESC LIMIT 20;
+  SELECT bot_id, chat_id, from_id, LEFT(message_text, 50) as preview, created_at 
+  FROM telegram_messages ORDER BY created_at DESC LIMIT 20;
+  ```
+- Pull additional Ollama models:
+  ```bash
+  docker exec -it n8n_ollama ollama pull llama3.2
+  docker exec -it n8n_ollama ollama list
   ```
 
 ## Stopping
@@ -209,7 +232,7 @@ docker-compose down
 
 # Stop and remove all data (WARNING: deletes all messages)
 docker-compose down
-rm -rf ./instance/postgres_data ./instance/n8n_data
+rm -rf ./instance/postgres_data ./instance/n8n_data ./instance/ollama
 ```
 
 ---
