@@ -1,0 +1,68 @@
+{
+    "chat_ids": [
+        {
+            "title": "admin",
+            "chat_id": "184636438"
+        },
+        {
+            "title": "test",
+            "chat_id": "-1001233916997"
+        },
+        {
+            "title": "caos",
+            "chat_id": "-1001487550955"
+        },
+        {
+            "title": "feedback",
+            "chat_id": "-416059831"
+        },
+        {
+            "title": "info",
+            "chat_id": "-266151663"
+        },
+        {
+            "title": "channel",
+            "chat_id": "-1001301475408"
+        },
+        {
+            "title": "debug",
+            "chat_id": "-1001455273966"
+        },
+        {
+            "title": "dip",
+            "chat_id": "-5020193508"
+        },
+        {
+            "title": "pub1",
+            "chat_id": "-1001286967165"
+        },
+        {
+            "title": "pub2",
+            "chat_id": "-296878012"
+        },
+        {
+            "title": "pub3",
+            "chat_id": "-1001207858341"
+        },
+        {
+            "title": "pub4",
+            "chat_id": "-1001233916997"
+        },
+        {
+            "title": "pub5",
+            "chat_id": "-481703172"
+        },
+        {
+            "title": "news",
+            "chat_id": "-1001123697262"
+        },
+        {
+            "title": "nouser",
+            "chat_id": "1"
+        },
+        {
+            "title": "nogroup",
+            "chat_id": "-1"
+        }
+    ]
+}

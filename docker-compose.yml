@@ -31,6 +31,7 @@ services:
       - ./instance/n8n_data:/home/node/.n8n
       - ./workflows:/home/node/.n8n/workflows
       - ./custom/dist:/home/node/.n8n/custom
+      - ./docker/uploads:/home/node/uploads
     working_dir: /home/node/.n8n
     depends_on:
       postgres:
