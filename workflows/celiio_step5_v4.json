@@ -387,7 +387,8 @@
         3696
       ],
       "id": "22c0251f-955b-4442-8429-e62787171502",
-      "name": "Stop and Error"
+      "name": "Stop and Error",
+      "disabled": true
     },
     {
       "parameters": {
@@ -417,9 +418,9 @@
     "Start": [
       {
         "json": {
-          "message_text": "vai te catar",
+          "message_text": "do not answer this",
           "chat_id": -5020193508,
-          "from_id": 184636438,
+          "from_id": 5133924687,
           "bot_name": "Ceres"
         },
         "binary": {}
@@ -530,7 +531,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "88ee2b96-d4ee-471e-9eb3-ffaddbe8c4d3",
+  "versionId": "0c5f8aae-4f9e-48e8-9ced-368a3673b64d",
   "meta": {
     "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
   },

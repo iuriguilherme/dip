@@ -1,133 +1,8 @@
 {
-  "name": "celiio_step5-ceres_v4",
+  "name": "celiio_error-log_v4",
   "nodes": [
     {
       "parameters": {
-        "model": "deepseek-r1:8b",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        -1712,
-        3584
-      ],
-      "id": "e571fbf8-e444-427d-bd73-e951126ad5e7",
-      "name": "Ollama",
-      "credentials": {
-        "ollamaApi": {
-          "id": "saUqAMyGND8VCSJv",
-          "name": "Ollama account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "model": "deepseek-r1:1.5b",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        -1584,
-        3584
-      ],
-      "id": "0a986eac-3a01-4729-b4a9-36651010799e",
-      "name": "Ollama Fallback",
-      "credentials": {
-        "ollamaApi": {
-          "id": "z5iLUPNrKsoOv412",
-          "name": "Ollama Fallback"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Start').item.json.chat_id + \"_\" + $('Start').item.json.from_id }}",
-        "contextWindowLength": 300
-      },
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.3,
-      "position": [
-        -1456,
-        3584
-      ],
-      "id": "8fa84fb5-3e0a-41a5-8cc8-009f30d6d674",
-      "name": "Simple Memory"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Please respond to the following message with warmth and empathy:\n\n{{ $json.message_text }}",
-        "needsFallback": true,
-        "options": {
-          "systemMessage": "=You are Ceres, a friendly and empathetic AI assistant. Your communication style is warm, conversational, and casual. You care deeply about the user's feelings and emotional well-being. You use approachable language, show genuine understanding, and provide supportive responses. Your goal is to make users feel heard, comfortable, and supported in every interaction. Previous conversation messages have been retrieved from the database using the user identifier \"{{ $json.chat_id }}_{{ $json.from_id }}\" - use this conversation history to remember previous discussions and show that you care about the ongoing relationship."
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3,
-      "position": [
-        -1664,
-        3360
-      ],
-      "id": "ee3024b0-6b36-461d-9b5a-70efa8fede7e",
-      "name": "Ceres Agent",
-      "retryOnFail": true,
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "a1afaeca-0f5d-4cd4-a917-21785e88a905",
-              "name": "output",
-              "value": "={{ $json.output }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -1248,
-        3216
-      ],
-      "id": "71b16b21-414c-48f3-a4b9-cb0f19554dd8",
-      "name": "Return"
-    },
-    {
-      "parameters": {
-        "workflowInputs": {
-          "values": [
-            {
-              "name": "message_text"
-            },
-            {
-              "name": "chat_id",
-              "type": "number"
-            },
-            {
-              "name": "from_id",
-              "type": "number"
-            }
-          ]
-        }
-      },
-      "id": "c133fef0-41e0-47e1-9dde-591d4823c506",
-      "typeVersion": 1.1,
-      "name": "Start",
-      "type": "n8n-nodes-base.executeWorkflowTrigger",
-      "position": [
-        -1936,
-        3360
-      ]
-    },
-    {
-      "parameters": {
         "mode": "combine",
         "combineBy": "combineAll",
         "options": {}
@@ -135,105 +10,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -800,
-        3424
+        16,
+        -80
       ],
-      "id": "ec47321d-f1ef-4aec-83de-8d3493540c3d",
-      "name": "Merge"
-    },
-    {
-      "parameters": {
-        "operation": "get",
-        "dataTableId": {
-          "__rl": true,
-          "value": "S7SVuJd21M3G7fPB",
-          "mode": "list",
-          "cachedResultName": "chat_ids",
-          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/S7SVuJd21M3G7fPB"
-        },
-        "filters": {
-          "conditions": [
-            {
-              "keyName": "title",
-              "keyValue": "debug"
-            }
-          ]
-        },
-        "limit": 1
-      },
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1,
-      "position": [
-        -1248,
-        3504
-      ],
-      "id": "d4fd3835-4631-4be8-9b79-3837531e481f",
-      "name": "Get debug chat_id"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "499417a4-316b-4c93-a57c-a11ec77f31e4",
-              "name": "debug_chat_id",
-              "value": "={{ $json.chat_id }}",
-              "type": "number"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -1024,
-        3504
-      ],
-      "id": "dad45ed5-8e3e-44ed-a9ed-b8f7f8a30dbb",
-      "name": "Get chat_id"
-    },
-    {
-      "parameters": {
-        "chatId": "={{ $json.debug_chat_id }}",
-        "text": "=Contexto muito grande pros dois modelos. Foi na mensagem:\n\n<code>\ntext: {{ $json.message_text }}\nchat_id: {{ $json.chat_id }}\nfrom_id: {{ $json.from_id }}\n</code>\n\n<code>\nerror: {{ $json.error }}\n</code>",
-        "additionalFields": {
-          "appendAttribution": false,
-          "disable_notification": true,
-          "parse_mode": "HTML"
-        }
-      },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        -576,
-        3424
-      ],
-      "id": "596fba6e-8f58-4b95-843d-bfbd4cf3fced",
-      "name": "Log Error on Telegram",
-      "webhookId": "d4924726-5720-441a-a509-fc602d4983f5",
-      "retryOnFail": true,
-      "credentials": {
-        "telegramApi": {
-          "id": "Zs6IO0L7GKnNCG4s",
-          "name": "Ceres"
-        }
-      },
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "mode": "combine",
-        "combineBy": "combineAll",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        320,
-        3296
-      ],
-      "id": "a443a8ef-67a7-46eb-ad55-8f64dad73188",
+      "id": "407729b7-cfcd-4e5a-b892-6de5a4e5b475",
       "name": "Merge1"
     },
     {
@@ -259,142 +39,11 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1,
       "position": [
-        -128,
-        3328
+        -432,
+        64
       ],
-      "id": "4993726c-4687-43ed-9e3c-2d341c921129",
+      "id": "ffe406c6-331f-4c23-b06a-8496dd956ade",
       "name": "Get admin chat_id"
-    },
-    {
-      "parameters": {
-        "rules": {
-          "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "loose",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.error }}",
-                    "rightValue": "Too Many Requests: retry after",
-                    "operator": {
-                      "type": "string",
-                      "operation": "startsWith"
-                    },
-                    "id": "e369bd3a-a109-4c8d-bf1e-8b147409426c"
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "retry after"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "loose",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "id": "08e1a4cc-f1cb-4c05-aa0b-7630e0f7ecdd",
-                    "leftValue": "={{ $json.error }}",
-                    "rightValue": "Bad Request: message to be replied not found",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "no reply"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "loose",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "id": "4a62f517-da6c-42c5-bdb8-54d037008b80",
-                    "leftValue": "={{ $json.error }}",
-                    "rightValue": "Bad Request: chat not found",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "not found"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "loose",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "id": "043e519c-850c-4ff8-b4ce-652ebcbf72f1",
-                    "leftValue": "={{ $json.error }}",
-                    "rightValue": "Forbidden: bot was kicked from the supergroup chat",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "not found (kicked)"
-            }
-          ]
-        },
-        "looseTypeValidation": true,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.3,
-      "position": [
-        -352,
-        3296
-      ],
-      "id": "e4f7753d-4201-48db-89d5-77f8b42a1d75",
-      "name": "Telegram Error Handling for Message"
-    },
-    {
-      "parameters": {
-        "amount": "={{  $json.error.substring(31) }}"
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        -128,
-        3536
-      ],
-      "id": "536b4924-c8ec-4edd-b5c9-f3df312bd315",
-      "name": "Wait",
-      "webhookId": "6aa8c20c-f349-4959-996f-87ba7c1c841c"
     },
     {
       "parameters": {
@@ -413,16 +62,16 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        96,
-        3328
+        -208,
+        64
       ],
-      "id": "16384b07-358b-4ab6-ba1e-32d4be9660b3",
+      "id": "a64c794c-ff6c-4330-a400-96d21eec0274",
       "name": "Parse admin chat_id"
     },
     {
       "parameters": {
         "chatId": "={{ $json.admin_chat_id }}",
-        "text": "=Contexto muito grande pros dois modelos. Foi na mensagem:\n\n<code>\ntext: {{ $json.message_text }}\nchat_id: {{ $json.chat_id }}\nfrom_id: {{ $json.from_id }}\n</code>\n\n<code>\nerror: {{ $json.error }}\n</code>\n\nE também eu fui expulso ou não estou no grupo de log de erros.",
+        "text": "=Error on n8n.\n\n<b>execution</b>\n<code>\n{{ $json.execution }}\n</code>\n<b>workflow</b>\n<code>\n{{ $json.workflow }}\n</code>\n<b>trigger</b>\n<code>\n{{ $json.trigger }}\n</code>",
         "additionalFields": {
           "appendAttribution": false,
           "disable_notification": true,
@@ -432,10 +81,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        544,
-        3296
+        240,
+        -80
       ],
-      "id": "1768d485-1ebb-461e-93f2-fb8a130f930c",
+      "id": "d519ce02-c000-40b5-92f8-09995b108b66",
       "name": "Warn Admin on Telegram",
       "webhookId": "d4924726-5720-441a-a509-fc602d4983f5",
       "retryOnFail": true,
@@ -558,10 +207,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        768,
-        3136
+        464,
+        -112
       ],
-      "id": "b0559980-ff10-4448-a361-7abccf0caaf8",
+      "id": "137c2658-f1b3-4e10-83d3-fd7554560716",
       "name": "Telegram Error Handling for Message1"
     },
     {
@@ -571,139 +220,277 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        992,
-        3296
+        688,
+        -80
       ],
-      "id": "27888bfc-d3f3-4bf4-94d0-04c988b82291",
+      "id": "c1474fd4-13f5-41f6-9982-5e8c24c0a6d1",
       "name": "Wait1",
       "webhookId": "6aa8c20c-f349-4959-996f-87ba7c1c841c"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1328,
+        -184
+      ],
+      "id": "6b902fe2-3ca0-4223-8566-0eb58c6790a8",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "S7SVuJd21M3G7fPB",
+          "mode": "list",
+          "cachedResultName": "chat_ids",
+          "cachedResultUrl": "/projects/y8Q7OOWCDMU3UYgP/datatables/S7SVuJd21M3G7fPB"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "title",
+              "keyValue": "debug"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1776,
+        -112
+      ],
+      "id": "f38da012-b99d-4395-8c9a-89b022cf651c",
+      "name": "Get debug chat_id"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "499417a4-316b-4c93-a57c-a11ec77f31e4",
+              "name": "debug_chat_id",
+              "value": "={{ $json.chat_id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1552,
+        -112
+      ],
+      "id": "538746fb-bb12-4bf4-8cad-f04cf160d594",
+      "name": "Parse debug chat_id"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.debug_chat_id }}",
+        "text": "=Error on n8n.\n\n<b>execution</b>\n<code>\n{{ $json.execution }}\n</code>\n<b>workflow</b>\n<code>\n{{ $json.workflow }}\n</code>\n<b>trigger</b>\n<code>\n{{ $json.trigger }}\n</code>",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_notification": true,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1104,
+        -184
+      ],
+      "id": "ce2a7b62-1ce2-4626-83d9-36ae0b256cff",
+      "name": "Log Error on Telegram",
+      "webhookId": "d4924726-5720-441a-a509-fc602d4983f5",
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "Zs6IO0L7GKnNCG4s",
+          "name": "Ceres"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2224,
+        -184
+      ],
+      "id": "31adf290-16ee-4ef2-b53f-be3b750a5ff4",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "Too Many Requests: retry after",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "e369bd3a-a109-4c8d-bf1e-8b147409426c"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "retry after"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "08e1a4cc-f1cb-4c05-aa0b-7630e0f7ecdd",
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "Bad Request: message to be replied not found",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "no reply"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4a62f517-da6c-42c5-bdb8-54d037008b80",
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "Bad Request: chat not found",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "not found"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "043e519c-850c-4ff8-b4ce-652ebcbf72f1",
+                    "leftValue": "={{ $json.error }}",
+                    "rightValue": "Forbidden: bot was kicked from the supergroup chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "not found (kicked)"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -880,
+        -304
+      ],
+      "id": "0b846660-a03c-4be2-90f3-40ddb98ba62d",
+      "name": "Telegram Error Handling for Message"
+    },
+    {
+      "parameters": {
+        "amount": "={{  $json.error.substring(31) }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        -272
+      ],
+      "id": "a12a4fb7-2566-4469-af49-8eb7b295fe19",
+      "name": "Wait",
+      "webhookId": "6aa8c20c-f349-4959-996f-87ba7c1c841c"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -2000,
+        -184
+      ],
+      "id": "c09ed113-ea09-4101-ba93-a42fee19a293",
+      "name": "Debug Telegram Log"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        -80
+      ],
+      "id": "3cc52d50-a9b5-45e8-977f-e79fe8f4ce2a",
+      "name": "Admin Telegram Log"
     }
   ],
-  "pinData": {
-    "Start": [
-      {
-        "json": {
-          "message_text": "do not answer this",
-          "chat_id": -5020193508,
-          "from_id": 5133924687
-        },
-        "binary": {}
-      }
-    ]
-  },
+  "pinData": {},
   "connections": {
-    "Ollama": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Ceres Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Fallback": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Ceres Agent",
-            "type": "ai_languageModel",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Simple Memory": {
-      "ai_memory": [
-        [
-          {
-            "node": "Ceres Agent",
-            "type": "ai_memory",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ceres Agent": {
-      "main": [
-        [
-          {
-            "node": "Return",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Get debug chat_id",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Start": {
-      "main": [
-        [
-          {
-            "node": "Ceres Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge": {
-      "main": [
-        [
-          {
-            "node": "Log Error on Telegram",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get debug chat_id": {
-      "main": [
-        [
-          {
-            "node": "Get chat_id",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get chat_id": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Log Error on Telegram": {
-      "main": [
-        [],
-        [
-          {
-            "node": "Telegram Error Handling for Message",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Merge1": {
       "main": [
         [
@@ -726,6 +513,95 @@
         ]
       ]
     },
+    "Parse admin chat_id": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Warn Admin on Telegram": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Telegram Error Handling for Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Error Handling for Message1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Warn Admin on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get debug chat_id": {
+      "main": [
+        [
+          {
+            "node": "Parse debug chat_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse debug chat_id": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Log Error on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Debug Telegram Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Telegram Error Handling for Message": {
       "main": [
         [
@@ -738,24 +614,26 @@
         [],
         [
           {
-            "node": "Merge1",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Get admin chat_id",
+            "node": "Admin Telegram Log",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Get admin chat_id",
+            "node": "Admin Telegram Log",
             "type": "main",
             "index": 0
-          },
+          }
+        ]
+      ]
+    },
+    "Log Error on Telegram": {
+      "main": [
+        [],
+        [
           {
-            "node": "Merge1",
+            "node": "Telegram Error Handling for Message",
             "type": "main",
             "index": 0
           }
@@ -773,45 +651,32 @@
         ]
       ]
     },
-    "Parse admin chat_id": {
+    "Debug Telegram Log": {
       "main": [
         [
+          {
+            "node": "Get debug chat_id",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Admin Telegram Log": {
+      "main": [
+        [
+          {
+            "node": "Get admin chat_id",
+            "type": "main",
+            "index": 0
+          },
           {
             "node": "Merge1",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Telegram Error Handling for Message1": {
-      "main": [
-        [
-          {
-            "node": "Wait1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Warn Admin on Telegram": {
-      "main": [
-        [],
-        [
-          {
-            "node": "Telegram Error Handling for Message1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait1": {
-      "main": [
-        [
-          {
-            "node": "Warn Admin on Telegram",
             "type": "main",
             "index": 0
           }
@@ -823,11 +688,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "05ffbecf-e846-4a7b-981a-34816f584628",
+  "versionId": "8ac4bdb2-3de9-4c79-93dd-09ca6dc1bb46",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
   },
-  "id": "DFEpzbO0Z1ormkDe",
+  "id": "dVW99SGwXJP8XWri",
   "tags": []
 }
