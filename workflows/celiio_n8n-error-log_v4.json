@@ -1,5 +1,5 @@
 {
-  "name": "celiio_error-log_v4",
+  "name": "celiio_n8n-error-log_v4",
   "nodes": [
     {
       "parameters": {
@@ -237,7 +237,7 @@
       "typeVersion": 3.2,
       "position": [
         -1328,
-        -184
+        -192
       ],
       "id": "6b902fe2-3ca0-4223-8566-0eb58c6790a8",
       "name": "Merge"
@@ -308,7 +308,7 @@
       "typeVersion": 1.2,
       "position": [
         -1104,
-        -184
+        -192
       ],
       "id": "ce2a7b62-1ce2-4626-83d9-36ae0b256cff",
       "name": "Log Error on Telegram",
@@ -330,7 +330,7 @@
       "typeVersion": 1.1,
       "position": [
         -2224,
-        -184
+        -192
       ],
       "id": "31adf290-16ee-4ef2-b53f-be3b750a5ff4",
       "name": "When Executed by Another Workflow"
@@ -472,7 +472,7 @@
       "typeVersion": 1,
       "position": [
         -2000,
-        -184
+        -192
       ],
       "id": "c09ed113-ea09-4101-ba93-a42fee19a293",
       "name": "Debug Telegram Log"
@@ -688,7 +688,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "8ac4bdb2-3de9-4c79-93dd-09ca6dc1bb46",
+  "versionId": "b26ecb4e-9970-4d4b-a430-0e27fee64ee1",
   "meta": {
     "instanceId": "261c369b8261e7dfd8103a0eed15ee25bf9ab164c4bacfa3dc09d361412c6130"
   },
